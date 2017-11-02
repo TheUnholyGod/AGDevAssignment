@@ -63,7 +63,7 @@ public:
 	// Update the elapsed time
 	void Update(const double dt);
 	// Discharge this weapon
-	void Discharge(Vector3 position, Vector3 target, CPlayerInfo* _source = NULL);
+	virtual void Discharge(Vector3 position, Vector3 target, CPlayerInfo* _source = NULL);
 	// Reload this weapon
 	void Reload(void);
 	// Add rounds

@@ -28,6 +28,16 @@ private:
 	bool CheckSphereCollision(EntityBase *ThisEntity, EntityBase *ThatEntity);
 	// Check if this entity collided with another entity, but both must have collider
 	bool CheckAABBCollision(EntityBase *ThisEntity, EntityBase *ThatEntity);
+
+	//Check for intersection between a line segment and a plane
+	bool GetIntersection(const float fDst1, const float fDst2, Vector3 P1, Vector3 P2, Vector3 &Hit);
+
+	//Check for intersection between a line segment and a plane
+	bool CheckLineSegmentPlane(Vector3 line_start, Vector3 line_end, Vector3 minAABB, Vector3 maxAABB, Vector3 &Hit);
+
+	//Check 2 positions are within a box region.
+	bool InBox(Vector3 Hit, Vector3 B1, Vector3 B2, const int Axis);
+
 	// Check if any Collider is colliding with another Collider
 	bool CheckForCollision(void);
 

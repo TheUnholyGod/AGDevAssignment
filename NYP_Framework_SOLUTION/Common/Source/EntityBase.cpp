@@ -5,6 +5,7 @@ EntityBase::EntityBase()
 	, scale(1.0f, 1.0f, 1.0f)
 	, isDone(false)
 	, m_bCollider(false)
+	, bLaser(false)
 {
 }
 
@@ -44,4 +45,14 @@ bool EntityBase::HasCollider(void) const
 void EntityBase::SetCollider(const bool _value)
 {
 	m_bCollider = _value;
+}
+
+void EntityBase::SetIsLaser(const bool bLaser)
+{
+	this->bLaser = bLaser;
+}
+
+bool EntityBase::GetIsLaser(void) const
+{
+	return bLaser;
 }
