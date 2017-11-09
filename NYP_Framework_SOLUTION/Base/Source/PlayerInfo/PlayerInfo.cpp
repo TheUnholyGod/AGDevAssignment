@@ -269,46 +269,6 @@ void CPlayerInfo::Update(double dt)
 	double camera_yaw = mouse_diff_x * 0.0174555555555556 * 7.5;		// 3.142 / 180.0
 	double camera_pitch = mouse_diff_y * 0.0174555555555556 * 7.5;	// 3.142 / 180.0
 
-	// Update the position if the WASD buttons were activated
-	if (KeyboardController::GetInstance()->IsKeyDown('W') ||
-		KeyboardController::GetInstance()->IsKeyDown('A') ||
-		KeyboardController::GetInstance()->IsKeyDown('S') ||
-		KeyboardController::GetInstance()->IsKeyDown('D'))
-	{
-		Vector3 viewVector = target - position;
-		Vector3 rightUV;
-		if (KeyboardController::GetInstance()->IsKeyDown('W'))
-		{
-			Vector3 temp(viewVector);
-			temp.y = 0;
-			position += temp.Normalized() * (float)m_dSpeed * (float)dt;
-		}
-		else if (KeyboardController::GetInstance()->IsKeyDown('S'))
-		{
-			Vector3 temp(viewVector);
-			temp.y = 0;
-			position -= temp.Normalized() * (float)m_dSpeed * (float)dt;
-		}
-		if (KeyboardController::GetInstance()->IsKeyDown('A'))
-		{
-			rightUV = (viewVector.Normalized()).Cross(up);
-			rightUV.y = 0;
-			rightUV.Normalize();
-			position -= rightUV * (float)m_dSpeed * (float)dt;
-		}
-		else if (KeyboardController::GetInstance()->IsKeyDown('D'))
-		{
-			rightUV = (viewVector.Normalized()).Cross(up);
-			rightUV.y = 0;
-			rightUV.Normalize();
-			position += rightUV * (float)m_dSpeed * (float)dt;
-		}
-		// Constrain the position
-		Constrain();
-		// Update the target
-		target = position + viewVector;
-	}
-
 	// Rotate the view direction
 	if (KeyboardController::GetInstance()->IsKeyDown(VK_LEFT) ||
 		KeyboardController::GetInstance()->IsKeyDown(VK_RIGHT) ||
@@ -490,4 +450,54 @@ void CPlayerInfo::AttachCamera(FPSCamera* _cameraPtr)
 void CPlayerInfo::DetachCamera()
 {
 	attachedCamera = nullptr;
+}
+
+void CPlayerInfo::MoveForward(double dt)
+{
+	Vector3 viewVector = target - position;
+	Vector3 rightUV;
+	Vector3 temp(viewVector);
+	temp.y = 0;
+	position += temp.Normalized() * (float)m_dSpeed * (float)dt;
+	Constrain();
+	// Update the target
+	target = position + viewVector;
+}
+
+void CPlayerInfo::MoveBackward(double dt)
+{
+	Vector3 viewVector = target - position;
+	Vector3 rightUV;
+	Vector3 temp(viewVector);
+	temp.y = 0;
+	position -= temp.Normalized() * (float)m_dSpeed * (float)dt;
+	Constrain();
+	// Update the target
+	target = position + viewVector;
+}
+
+void CPlayerInfo::MoveLeft(double dt)
+{
+	Vector3 viewVector = target - position;
+	Vector3 rightUV;
+	rightUV = (viewVector.Normalized()).Cross(up);
+	rightUV.y = 0;
+	rightUV.Normalize();
+	position -= rightUV * (float)m_dSpeed * (float)dt;
+	Constrain();
+	// Update the target
+	target = position + viewVector;
+}
+
+void CPlayerInfo::MoveRight(double dt)
+{
+	Vector3 viewVector = target - position;
+	Vector3 rightUV;
+	rightUV = (viewVector.Normalized()).Cross(up);
+	rightUV.y = 0;
+	rightUV.Normalize();
+	position += rightUV * (float)m_dSpeed * (float)dt;
+	Constrain();
+	// Update the target
+	target = position + viewVector;
 }

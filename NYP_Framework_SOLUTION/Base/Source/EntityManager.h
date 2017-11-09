@@ -18,6 +18,7 @@ public:
 	void AddEntity(EntityBase* _newEntity);
 	bool RemoveEntity(EntityBase* _existingEntity);
 
+	void EmptyList();
 private:
 	EntityManager();
 	virtual ~EntityManager();

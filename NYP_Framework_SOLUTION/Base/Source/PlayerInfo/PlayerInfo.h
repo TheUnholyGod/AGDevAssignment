@@ -65,6 +65,12 @@ public:
 	// Set the terrain for the player info
 	void SetTerrain(GroundEntity* m_pTerrain);
 
+	//movement
+	void MoveForward(double dt);
+	void MoveBackward(double dt);
+	void MoveLeft(double dt);
+	void MoveRight(double dt);
+
 	// Get position
 	Vector3 GetPos(void) const;
 	// Get target

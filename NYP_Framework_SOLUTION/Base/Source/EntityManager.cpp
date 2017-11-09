@@ -2,6 +2,7 @@
 #include "EntityBase.h"
 #include "Collider/Collider.h"
 #include "Projectile/Laser.h"
+#include "SceneGraph\SceneGraph.h"
 #include <iostream>
 using namespace std;
 
@@ -25,7 +26,6 @@ void EntityManager::Update(double _dt)
 	{
 		if ((*it)->IsDone())
 		{
-			// Delete if done
 			delete *it;
 			it = entityList.erase(it);
 		}
@@ -82,6 +82,19 @@ bool EntityManager::RemoveEntity(EntityBase* _existingEntity)
 	}
 	// Return false if not found
 	return false;
+}
+
+void EntityManager::EmptyList()
+{
+	std::list<EntityBase*>::iterator it, end;
+	it = entityList.begin();
+	end = entityList.end();
+
+	while (it != end)
+	{
+		delete *it;
+		it = entityList.erase(it);
+	}
 }
 
 // Constructor
@@ -298,6 +311,15 @@ bool EntityManager::CheckForCollision(void)
 					{
 						(*colliderThis)->SetIsDone(true);
 						(*colliderThat)->SetIsDone(true);
+
+						if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
+						{
+							cout << "Entity Removed" << endl;
+						}
+						if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
+						{
+							cout << "Entity Removed" << endl;
+						}
 					}
 				}
 			}
@@ -325,6 +347,15 @@ bool EntityManager::CheckForCollision(void)
 						{
 							thisEntity->SetIsDone(true);
 							thatEntity->SetIsDone(true);
+
+							if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
+							{
+								cout << "Entity Removed" << endl;
+							}
+							if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
+							{
+								cout << "Entity Removed" << endl;
+							}
 						}
 					}
 				}

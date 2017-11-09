@@ -14,6 +14,9 @@ class ShaderProgram;
 class SceneManager;
 class TextEntity;
 class Light;
+class Keyboard;
+class Mouse;
+
 class SceneText : public Scene
 {	
 public:
@@ -25,6 +28,8 @@ public:
 	virtual void Render();
 	virtual void Exit();
 
+	virtual void ResetScene();
+
 private:
 	SceneText(SceneManager* _sceneMgr); // This is used to register to SceneManager
 
@@ -34,9 +39,10 @@ private:
 	FPSCamera camera;
 	TextEntity* textObj[3];
 	Light* lights[2];
-
+	Keyboard* m_kb;
+	Mouse* m_mouse;
 	GenericEntity* theCube;
-
+	float m_inputtimer;
 	static SceneText* sInstance; // The pointer to the object that gets registered
 };
 

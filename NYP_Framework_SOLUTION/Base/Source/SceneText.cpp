@@ -21,6 +21,11 @@
 #include "Light.h"
 #include "SkyBox/SkyBoxEntity.h"
 
+#include "HardwareAbstraction\Mouse.h"
+#include "HardwareAbstraction\Keyboard.h"
+
+
+#include "SceneGraph\SceneGraph.h"
 #include <iostream>
 using namespace std;
 
@@ -37,6 +42,7 @@ SceneText::SceneText(SceneManager* _sceneMgr)
 
 SceneText::~SceneText()
 {
+	CSceneGraph::GetInstance()->Destroy();
 }
 
 void SceneText::Init()
@@ -108,16 +114,6 @@ void SceneText::Init()
 
 	currProg->UpdateInt("numLights", 1);
 	currProg->UpdateInt("textEnabled", 0);
-	
-	// Create the playerinfo instance, which manages all information about the player
-	playerInfo = CPlayerInfo::GetInstance();
-	playerInfo->Init();
-
-	// Create and attach the camera to the scene
-	//camera.Init(Vector3(0, 0, 10), Vector3(0, 0, 0), Vector3(0, 1, 0));
-	camera.Init(playerInfo->GetPos(), playerInfo->GetTarget(), playerInfo->GetUp());
-	playerInfo->AttachCamera(&camera);
-	GraphicsManager::GetInstance()->AttachCamera(&camera);
 
 	// Load all the meshes
 	MeshBuilder::GetInstance()->GenerateAxes("reference");
@@ -154,41 +150,39 @@ void SceneText::Init()
 	MeshBuilder::GetInstance()->GetMesh("SKYBOX_TOP")->textureID = LoadTGA("Image//SkyBox//skybox_top.tga");
 	MeshBuilder::GetInstance()->GetMesh("SKYBOX_BOTTOM")->textureID = LoadTGA("Image//SkyBox//skybox_bottom.tga");
 	MeshBuilder::GetInstance()->GenerateRay("laser", 10.0f);
-	// Create entities into the scene
-	Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
-	Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
-	GenericEntity* aCube = Create::Entity("cube", Vector3(-20.0f, 0.0f, -20.0f));
-	aCube->SetCollider(true);
-	aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
 
-	groundEntity = Create::Ground("GRASS_DARKGREEN", "GEO_GRASS_LIGHTGREEN");
-//	Create::Text3DObject("text", Vector3(0.0f, 0.0f, 0.0f), "DM2210", Vector3(10.0f, 10.0f, 10.0f), Color(0, 1, 1));
-	Create::Sprite2DObject("crosshair", Vector3(0.0f, 0.0f, 0.0f), Vector3(10.0f, 10.0f, 10.0f));
+	// Create the playerinfo instance, which manages all information about the player
+	playerInfo = CPlayerInfo::GetInstance();
+	playerInfo->Init();
 
-	SkyBoxEntity* theSkyBox = Create::SkyBox("SKYBOX_FRONT", "SKYBOX_BACK",
-											 "SKYBOX_LEFT", "SKYBOX_RIGHT",
-											 "SKYBOX_TOP", "SKYBOX_BOTTOM");
+	// Create and attach the camera to the scene
+	//camera.Init(Vector3(0, 0, 10), Vector3(0, 0, 0), Vector3(0, 1, 0));
+	camera.Init(playerInfo->GetPos(), playerInfo->GetTarget(), playerInfo->GetUp());
+	playerInfo->AttachCamera(&camera);
+	GraphicsManager::GetInstance()->AttachCamera(&camera);
 
-	// Customise the ground entity
-	groundEntity->SetPosition(Vector3(0, -10, 0));
-	groundEntity->SetScale(Vector3(100.0f, 100.0f, 100.0f));
-	groundEntity->SetGrids(Vector3(10.0f, 1.0f, 10.0f));
-	playerInfo->SetTerrain(groundEntity);
+	m_kb = new Keyboard();
+	m_kb->Create(playerInfo);
 
-	// Setup the 2D entities
-	float halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2.0f;
-	float halfWindowHeight = Application::GetInstance().GetWindowHeight() / 2.0f;
-	float fontSize = 25.0f;
-	float halfFontSize = fontSize / 2.0f;
-	for (int i = 0; i < 3; ++i)
-	{
-		textObj[i] = Create::Text2DObject("text", Vector3(-halfWindowWidth, -halfWindowHeight + fontSize*i + halfFontSize, 0.0f), "", Vector3(fontSize, fontSize, fontSize), Color(0.0f,1.0f,0.0f));
-	}
-	textObj[0]->SetText("HELLO WORLD");
+	m_mouse = new Mouse();
+	m_mouse->Create(playerInfo);
+
+	m_inputtimer = 0;
+	this->ResetScene();
 }
 
 void SceneText::Update(double dt)
 {
+	m_inputtimer += dt;
+
+	m_kb->Read(dt);
+	m_kb->Update(dt);
+	if (m_inputtimer > 0.05f)
+	{
+		
+		m_inputtimer -= 0.05f;
+	}
+
 	// Update our entities
 	EntityManager::GetInstance()->Update(dt);
 
@@ -249,6 +243,10 @@ void SceneText::Update(double dt)
 	{
 		cout << "Mouse Wheel has offset in Y-axis of " << MouseController::GetInstance()->GetMouseScrollStatus(MouseController::SCROLL_TYPE_YOFFSET) << endl;
 	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('R'))
+	{
+		this->ResetScene();
+	}
 	// <THERE>
 
 	// Update the player position and other details based on keyboard and mouse inputs
@@ -307,4 +305,58 @@ void SceneText::Exit()
 	// Delete the lights
 	delete lights[0];
 	delete lights[1];
+}
+
+void SceneText::ResetScene()
+{
+	EntityManager::GetInstance()->EmptyList();
+
+	// Create entities into the scene
+	Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
+	Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
+	GenericEntity* aCube = Create::Entity("cube", Vector3(-20.0f, 0.0f, -20.0f));
+	aCube->SetCollider(true);
+	aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+
+	CSceneNode* theNode = CSceneGraph::GetInstance()->AddNode(aCube);
+	if (theNode == NULL)
+	{
+		cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
+	}
+
+
+	GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
+	anotherCube->SetCollider(true);
+	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+
+	CSceneNode* anotherNode = theNode->AddChild(anotherCube);
+	if (theNode == NULL)
+	{
+		cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
+	}
+
+	groundEntity = Create::Ground("GRASS_DARKGREEN", "GEO_GRASS_LIGHTGREEN");
+	//	Create::Text3DObject("text", Vector3(0.0f, 0.0f, 0.0f), "DM2210", Vector3(10.0f, 10.0f, 10.0f), Color(0, 1, 1));
+	Create::Sprite2DObject("crosshair", Vector3(0.0f, 0.0f, 0.0f), Vector3(10.0f, 10.0f, 10.0f));
+
+	SkyBoxEntity* theSkyBox = Create::SkyBox("SKYBOX_FRONT", "SKYBOX_BACK",
+		"SKYBOX_LEFT", "SKYBOX_RIGHT",
+		"SKYBOX_TOP", "SKYBOX_BOTTOM");
+
+	// Customise the ground entity
+	groundEntity->SetPosition(Vector3(0, -10, 0));
+	groundEntity->SetScale(Vector3(100.0f, 100.0f, 100.0f));
+	groundEntity->SetGrids(Vector3(10.0f, 1.0f, 10.0f));
+	playerInfo->SetTerrain(groundEntity);
+
+	// Setup the 2D entities
+	float halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2.0f;
+	float halfWindowHeight = Application::GetInstance().GetWindowHeight() / 2.0f;
+	float fontSize = 25.0f;
+	float halfFontSize = fontSize / 2.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		textObj[i] = Create::Text2DObject("text", Vector3(-halfWindowWidth, -halfWindowHeight + fontSize*i + halfFontSize, 0.0f), "", Vector3(fontSize, fontSize, fontSize), Color(0.0f, 1.0f, 0.0f));
+	}
+	textObj[0]->SetText("HELLO WORLD");
 }
