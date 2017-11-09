@@ -229,6 +229,7 @@ void SceneText::Update(double dt)
 	}
 	if (MouseController::GetInstance()->IsButtonReleased(MouseController::RMB))
 	{
+
 		cout << "Right Mouse Button was released!" << endl;
 	}
 	if (MouseController::GetInstance()->IsButtonReleased(MouseController::MMB))

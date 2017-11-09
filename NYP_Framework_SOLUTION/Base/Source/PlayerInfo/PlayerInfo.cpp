@@ -1,6 +1,7 @@
 #include "PlayerInfo.h"
 #include <iostream>
 
+#include "../FPSCamera.h"
 #include "MouseController.h"
 #include "KeyboardController.h"
 #include "Mtx44.h"
@@ -66,6 +67,9 @@ void CPlayerInfo::Init(void)
 
 	secondaryWeapon = new CLaserBlaster();
 	secondaryWeapon->Init();
+
+	maxzoom.Set(10, 10, 10);
+	
 }
 
 // Returns true if the player is on ground
@@ -363,6 +367,22 @@ void CPlayerInfo::Update(double dt)
 		SetToJumpUpwards(true);
 	}
 
+	if (MouseController::GetInstance()->IsButtonDown(MouseController::RMB))
+	{
+	
+		if (attachedCamera->GetCameraPos() < this->position + this->maxzoom)
+		{
+			
+			std::cout << "Before : P " << attachedCamera->GetCameraPos() << " T " << attachedCamera->GetCameraTarget() << std::endl;
+		attachedCamera->SetCameraTarget(attachedCamera->GetCameraTarget() + attachedCamera->GetCameraTarget().Normalized() * dt);
+			attachedCamera->SetCameraPos(attachedCamera->GetCameraPos() + attachedCamera->GetCameraTarget().Normalized() * dt);
+			std::cout << "After : P " << attachedCamera->GetCameraPos() << " T " << attachedCamera->GetCameraTarget() << std::endl;
+			
+		
+		}
+		
+	}
+
 	// Update the weapons
 	if (KeyboardController::GetInstance()->IsKeyReleased('R'))
 	{
@@ -409,8 +429,8 @@ void CPlayerInfo::Update(double dt)
 	// If a camera is attached to this playerInfo class, then update it
 	if (attachedCamera)
 	{
-		attachedCamera->SetCameraPos(position);
-		attachedCamera->SetCameraTarget(target);
+		attachedCamera->SetCameraPos(position + zoomfactor);
+		attachedCamera->SetCameraTarget(target + zoomfactor);
 		attachedCamera->SetCameraUp(up);
 	}
 }

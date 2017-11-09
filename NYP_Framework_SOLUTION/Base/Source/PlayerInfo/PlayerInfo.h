@@ -121,4 +121,7 @@ private:
 
 	CWeaponInfo* primaryWeapon;
 	CWeaponInfo* secondaryWeapon;
+	Vector3 zoomfactor;
+	Vector3 maxzoom;
+	
 };
