@@ -25,6 +25,10 @@ private:
 
 namespace Create
 {
+	GenericEntity* Asset(const std::string& _meshName,
+		const Vector3& _position,
+		const Vector3& _scale = Vector3(1.0f, 1.0f, 1.0f));
+
 	GenericEntity* Entity(	const std::string& _meshName, 
 							const Vector3& _position, 
 							const Vector3& _scale = Vector3(1.0f, 1.0f, 1.0f));

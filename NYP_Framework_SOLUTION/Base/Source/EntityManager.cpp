@@ -17,6 +17,8 @@ void EntityManager::Update(double _dt)
 		(*it)->Update(_dt);
 	}
 
+	CSceneGraph::GetInstance()->Update();
+
 	// Check for Collision amongst entities with collider properties
 	CheckForCollision();
 
@@ -47,6 +49,7 @@ void EntityManager::Render()
 	{
 		(*it)->Render();
 	}
+	CSceneGraph::GetInstance()->Render();
 }
 
 // Render the UI entities

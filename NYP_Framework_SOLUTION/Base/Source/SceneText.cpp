@@ -149,6 +149,7 @@ void SceneText::Init()
 	MeshBuilder::GetInstance()->GetMesh("SKYBOX_RIGHT")->textureID = LoadTGA("Image//SkyBox//skybox_right.tga");
 	MeshBuilder::GetInstance()->GetMesh("SKYBOX_TOP")->textureID = LoadTGA("Image//SkyBox//skybox_top.tga");
 	MeshBuilder::GetInstance()->GetMesh("SKYBOX_BOTTOM")->textureID = LoadTGA("Image//SkyBox//skybox_bottom.tga");
+	MeshBuilder::GetInstance()->GenerateCube("cubeSG", Color(1.0f, 0.64f, 0.0f), 1.0f);
 	MeshBuilder::GetInstance()->GenerateRay("laser", 10.0f);
 
 	// Create the playerinfo instance, which manages all information about the player
@@ -325,10 +326,28 @@ void SceneText::ResetScene()
 		cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
 	}
 
+	GenericEntity* baseCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
+	CSceneNode* baseNode = CSceneGraph::GetInstance()->AddNode(baseCube);
+	GenericEntity* childCube = Create::Asset("cube", Vector3(0.0f, 0.0f, 0.0f));
+	CSceneNode* childNode = baseNode->AddChild(childCube);
+	childNode->ApplyTranslate(0.0f, 1.0f, 0.0f);
+	GenericEntity* grandchildCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
+	CSceneNode* grandchildNode = childNode->AddChild(grandchildCube);
+	grandchildNode->ApplyTranslate(0.0f, 0.0f, 1.0f);
 
 	GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
 	anotherCube->SetCollider(true);
 	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+
+	CUpdateTransformation* baseMtx = new CUpdateTransformation();
+	baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
+	baseMtx->SetSteps(-30, 30);	baseNode->SetUpdateTransformation(baseMtx);
+	grandchildNode->ApplyTranslate(0.0f, 0.0f, 0.01f);
+	CUpdateTransformation* rotation = new CUpdateTransformation();
+	rotation->ApplyUpdate(1.0f, 0.0f, 0.0f, 1.0f);
+	rotation->SetSteps(-120, 60);
+	grandchildNode->SetUpdateTransformation(rotation);
+
 
 	CSceneNode* anotherNode = theNode->AddChild(anotherCube);
 	if (theNode == NULL)

@@ -94,3 +94,13 @@ void CSceneGraph::PrintSelf(void)
 {
 	theRoot->PrintSelf();
 }
+
+void CSceneGraph::Update()
+{
+	theRoot->Update();
+}
+
+void CSceneGraph::Render()
+{
+	theRoot->Render();
+}
