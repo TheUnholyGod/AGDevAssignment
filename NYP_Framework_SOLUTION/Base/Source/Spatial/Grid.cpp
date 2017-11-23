@@ -14,6 +14,7 @@ CGrid::CGrid(void)
 	, max(Vector3(-1, -1, -1))
 	, theMesh(NULL)
 	, ListOfObjects(NULL)
+	, RenderThis(true)
 {
 }
 

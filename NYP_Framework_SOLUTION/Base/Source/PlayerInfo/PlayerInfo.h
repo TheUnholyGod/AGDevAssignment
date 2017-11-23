@@ -101,6 +101,7 @@ public:
 	void DetachCamera();
 
 	GroundEntity* GetTerrain(void);
+	int GetGridNo() { return this->m_gridNo; }
 private:
 	Vector3 defaultPosition, defaultTarget, defaultUp;
 	Vector3 position, target, up;
@@ -125,4 +126,5 @@ private:
 	Vector3 zoomfactor;
 	Vector3 maxzoom;
 	
+	int m_gridNo;
 };

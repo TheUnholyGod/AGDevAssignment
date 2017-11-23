@@ -28,6 +28,8 @@ protected:
 	// List of objects in this grid
 	vector<EntityBase*> ListOfObjects;
 
+	bool RenderThis;
+
 public:
 	// Constructor
 	CGrid(void);
@@ -64,4 +66,8 @@ public:
 
 	// PrintSelf
 	void PrintSelf();
+
+	bool GetRenderThis() { return RenderThis; }
+
+	void SetRenderThis(bool _render) { this->RenderThis = _render; }
 };

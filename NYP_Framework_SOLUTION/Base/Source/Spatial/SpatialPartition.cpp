@@ -3,6 +3,7 @@
 #include "Collider\Collider.h"
 #include "GraphicsManager.h"
 #include "RenderHelper.h"
+#include "../PlayerInfo/PlayerInfo.h"
 
 template <typename T> vector<T> concat(vector<T> &a, vector<T> &b) {
 	vector<T> ret = vector<T>();
@@ -113,10 +114,17 @@ Update the spatial partition
 ********************************************************************************/
 void CSpatialPartition::Update(void)
 {
+	Vector3 check = CPlayerInfo::GetInstance()->GetTarget();
+	int gridno = CPlayerInfo::GetInstance()->GetGridNo();
+
 	for (int i = 0; i<xNumOfGrid; i++)
 	{
 		for (int j = 0; j<zNumOfGrid; j++)
 		{
+			Vector3 pos;
+			pos.x = (i * xSize)/xNumOfGrid - (xSize >> 1);
+			pos.z = (j * zSize) / zNumOfGrid - (zSize >> 1);
+			theGrid[i*zNumOfGrid + j].SetRenderThis((bool)check.Dot(pos));
 			theGrid[i*zNumOfGrid + j].Update(&MigrationList);
 		}
 	}
@@ -144,10 +152,16 @@ void CSpatialPartition::Render(Vector3* theCameraPosition)
 
 	modelStack.PushMatrix();
 	modelStack.Translate(0.0f, yOffset, 0.0f);
+	int counter = 0;
 	for (int i = 0; i<xNumOfGrid; i++)
 	{
 		for (int j = 0; j<zNumOfGrid; j++)
 		{
+			if (!theGrid[i*zNumOfGrid + j].GetRenderThis())
+			{
+				++counter;
+				continue;
+			}
 			modelStack.PushMatrix();
 			modelStack.Translate(xGridSize*i - (xSize >> 1), 0.0f, zGridSize*j - (zSize >> 1));
 			modelStack.PushMatrix();
@@ -160,6 +174,7 @@ void CSpatialPartition::Render(Vector3* theCameraPosition)
 	}
 
 	modelStack.PopMatrix();
+	std::cout << counter << std::endl;
 }
 
 /********************************************************************************
@@ -266,6 +281,13 @@ float CSpatialPartition::CalculateDistanceSquare(Vector3* theCameraPosition, con
 	float yDistance = (zIndex * zNumOfGrid + (zSize / 2)) - theCameraPosition->z;
 
 	return (float) ( xDistance*xDistance + yDistance*yDistance );
+}
+
+int CSpatialPartition::GetGridNoBasedOnPosition(Vector3 pos)
+{
+	int xIndex = (((int)pos.x - (-xSize >> 1)) / (xSize / xNumOfGrid));
+	int zIndex = (((int)pos.z - (-zSize >> 1)) / (zSize / zNumOfGrid));
+	return (xIndex*zNumOfGrid + zIndex);
 }
 
 
