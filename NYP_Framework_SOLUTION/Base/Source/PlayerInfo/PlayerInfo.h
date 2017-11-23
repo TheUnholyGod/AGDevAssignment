@@ -100,6 +100,7 @@ public:
 	void AttachCamera(FPSCamera* _cameraPtr);
 	void DetachCamera();
 
+	GroundEntity* GetTerrain(void);
 private:
 	Vector3 defaultPosition, defaultTarget, defaultUp;
 	Vector3 position, target, up;

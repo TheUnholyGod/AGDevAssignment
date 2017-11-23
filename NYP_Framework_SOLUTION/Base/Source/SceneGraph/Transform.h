@@ -49,6 +49,8 @@ public:
 	// Get the update transformation matrix
 	Mtx44 GetUpdateTransform(void);
 
+
+
 	// Print Self
 	void PrintSelf(void) const;
 };

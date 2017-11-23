@@ -3,6 +3,7 @@
 #include "Collider/Collider.h"
 #include "Projectile/Laser.h"
 #include "SceneGraph\SceneGraph.h"
+
 #include <iostream>
 using namespace std;
 
@@ -17,7 +18,12 @@ void EntityManager::Update(double _dt)
 		(*it)->Update(_dt);
 	}
 
+	// Render the Scene Graph
 	CSceneGraph::GetInstance()->Update();
+
+	// Render the Spatial Partition
+	if (theSpatialPartition)
+		theSpatialPartition->Update();
 
 	// Check for Collision amongst entities with collider properties
 	CheckForCollision();
@@ -28,6 +34,7 @@ void EntityManager::Update(double _dt)
 	{
 		if ((*it)->IsDone())
 		{
+			// Delete if done
 			delete *it;
 			it = entityList.erase(it);
 		}
@@ -49,7 +56,13 @@ void EntityManager::Render()
 	{
 		(*it)->Render();
 	}
+
+	// Render the Scene Graph
 	CSceneGraph::GetInstance()->Render();
+
+	// Render the Spatial Partition
+	if (theSpatialPartition)
+		theSpatialPartition->Render();
 }
 
 // Render the UI entities
@@ -65,9 +78,13 @@ void EntityManager::RenderUI()
 }
 
 // Add an entity to this EntityManager
-void EntityManager::AddEntity(EntityBase* _newEntity)
+void EntityManager::AddEntity(EntityBase* _newEntity, bool bAddToSpatialPartition)
 {
 	entityList.push_back(_newEntity);
+
+	// Add to the Spatial Partition
+	if (theSpatialPartition && bAddToSpatialPartition)
+		theSpatialPartition->Add(_newEntity);
 }
 
 // Remove an entity from this EntityManager
@@ -81,33 +98,72 @@ bool EntityManager::RemoveEntity(EntityBase* _existingEntity)
 	{
 		delete *findIter;
 		findIter = entityList.erase(findIter);
+
+		// Remove from SceneNode too
+		if (CSceneGraph::GetInstance()->DeleteNode(_existingEntity) == false)
+		{
+			cout << "EntityManager::RemoveEntity: Unable to remove this entity from Scene Graph" << endl;
+		}
+		else
+		{
+			// Add to the Spatial Partition
+			if (theSpatialPartition)
+				theSpatialPartition->Remove(_existingEntity);
+		}
+
 		return true;
 	}
 	// Return false if not found
 	return false;
 }
 
+// Mark an entity for deletion
+bool EntityManager::MarkForDeletion(EntityBase* _existingEntity)
+{
+	// Find the entity's iterator
+	std::list<EntityBase*>::iterator findIter = std::find(entityList.begin(), entityList.end(), _existingEntity);
+
+	// Delete the entity if found
+	if (findIter != entityList.end())
+	{
+		(*findIter)->SetIsDone(true);
+		return true;
+	}
+	// Return false if not found
+	return false;
+}
+
+// Set a handle to the Spatial Partition to this class
+void EntityManager::SetSpatialPartition(CSpatialPartition* theSpatialPartition)
+{
+	this->theSpatialPartition = theSpatialPartition;
+}
+
 void EntityManager::EmptyList()
 {
 	std::list<EntityBase*>::iterator it, end;
-	it = entityList.begin();
-	end = entityList.end();
 
 	while (it != end)
 	{
-		delete *it;
-		it = entityList.erase(it);
+			delete *it;
+			it = entityList.erase(it);
 	}
 }
 
 // Constructor
 EntityManager::EntityManager()
+	: theSpatialPartition(NULL)
 {
 }
 
 // Destructor
 EntityManager::~EntityManager()
 {
+	// Drop the Spatial Partition instance
+	CSpatialPartition::GetInstance()->DropInstance();
+
+	// Clear out the Scene Graph
+	CSceneGraph::GetInstance()->Destroy();
 }
 
 // Check for overlap
@@ -123,7 +179,6 @@ bool EntityManager::CheckOverlap(Vector3 thisMinAABB, Vector3 thisMaxAABB, Vecto
 	(thatMaxAABB.y >= thisMinAABB.y) && (thatMaxAABB.y <= thisMaxAABB.y) &&
 	(thatMaxAABB.z >= thisMinAABB.z) && (thatMaxAABB.z <= thisMaxAABB.z)))
 	*/
-
 	if (((thatMinAABB >= thisMinAABB) && (thatMinAABB <= thisMaxAABB))
 		||
 		((thatMaxAABB >= thisMinAABB) && (thatMaxAABB <= thisMaxAABB)))
@@ -237,7 +292,8 @@ bool EntityManager::CheckAABBCollision(EntityBase *ThisEntity, EntityBase *ThatE
 	return false;
 }
 
-bool EntityManager::GetIntersection(const float fDst1, const float fDst2, Vector3 P1, Vector3 P2, Vector3 & Hit)
+// Check where a line segment between two positions intersects a plane
+bool EntityManager::GetIntersection(const float fDst1, const float fDst2, Vector3 P1, Vector3 P2, Vector3 &Hit)
 {
 	if ((fDst1 * fDst2) >= 0.0f)
 		return false;
@@ -247,7 +303,19 @@ bool EntityManager::GetIntersection(const float fDst1, const float fDst2, Vector
 	return true;
 }
 
-bool EntityManager::CheckLineSegmentPlane(Vector3 line_start, Vector3 line_end, Vector3 minAABB, Vector3 maxAABB, Vector3 & Hit)
+// Check two positions are within a box region
+bool EntityManager::InBox(Vector3 Hit, Vector3 B1, Vector3 B2, const int Axis)
+{
+	if (Axis == 1 && Hit.z > B1.z && Hit.z < B2.z && Hit.y > B1.y && Hit.y < B2.y) return true;
+	if (Axis == 2 && Hit.z > B1.z && Hit.z < B2.z && Hit.x > B1.x && Hit.x < B2.x) return true;
+	if (Axis == 3 && Hit.x > B1.x && Hit.x < B2.x && Hit.y > B1.y && Hit.y < B2.y) return true;
+	return false;
+}
+
+// Check for intersection between a line segment and a plane
+bool EntityManager::CheckLineSegmentPlane(Vector3 line_start, Vector3 line_end,
+	Vector3 minAABB, Vector3 maxAABB,
+	Vector3 &Hit)
 {
 	if ((GetIntersection(line_start.x - minAABB.x, line_end.x - minAABB.x, line_start, line_end, Hit) &&
 		InBox(Hit, minAABB, maxAABB, 1))
@@ -263,14 +331,6 @@ bool EntityManager::CheckLineSegmentPlane(Vector3 line_start, Vector3 line_end, 
 			InBox(Hit, minAABB, maxAABB, 3)))
 		return true;
 
-	return false;
-}
-
-bool EntityManager::InBox(Vector3 Hit, Vector3 B1, Vector3 B2, const int Axis)
-{
-	if (Axis == 1 && Hit.z > B1.z && Hit.z < B2.z && Hit.y > B1.y && Hit.y < B2.y) return true;
-	if (Axis == 2 && Hit.z > B1.z && Hit.z < B2.z && Hit.x > B1.x && Hit.x < B2.x) return true;
-	if (Axis == 3 && Hit.x > B1.x && Hit.x < B2.x && Hit.y > B1.y && Hit.y < B2.y) return true;
 	return false;
 }
 
@@ -315,14 +375,17 @@ bool EntityManager::CheckForCollision(void)
 						(*colliderThis)->SetIsDone(true);
 						(*colliderThat)->SetIsDone(true);
 
+						// Remove from Scene Graph
 						if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
 						{
-							cout << "Entity Removed" << endl;
+							cout << "*** This Entity removed ***" << endl;
 						}
+						// Remove from Scene Graph
 						if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
 						{
-							cout << "Entity Removed" << endl;
+							cout << "*** That Entity removed ***" << endl;
 						}
+
 					}
 				}
 			}
@@ -351,14 +414,17 @@ bool EntityManager::CheckForCollision(void)
 							thisEntity->SetIsDone(true);
 							thatEntity->SetIsDone(true);
 
+							// Remove from Scene Graph
+							if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
+							{
+								cout << "*** This Entity removed ***" << endl;
+							}
+							// Remove from Scene Graph
 							if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
 							{
-								cout << "Entity Removed" << endl;
+								cout << "*** That Entity removed ***" << endl;
 							}
-							if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
-							{
-								cout << "Entity Removed" << endl;
-							}
+
 						}
 					}
 				}

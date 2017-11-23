@@ -8,7 +8,7 @@
 #include "../Projectile/Projectile.h"
 #include "../WeaponInfo/Pistol.h"
 #include "../WeaponInfo/LaserBlaster.h"
-
+#include "../WeaponInfo/Grenadethrow.h"
 // Allocating and initializing CPlayerInfo's static data member.  
 // The pointer is allocated but not the object's constructor.
 CPlayerInfo *CPlayerInfo::s_instance = 0;
@@ -65,7 +65,7 @@ void CPlayerInfo::Init(void)
 	primaryWeapon = new CPistol();
 	primaryWeapon->Init();
 
-	secondaryWeapon = new CLaserBlaster();
+	secondaryWeapon = new CGrenadeThrow();
 	secondaryWeapon->Init();
 
 	maxzoom.Set(10, 10, 10);
@@ -470,6 +470,12 @@ void CPlayerInfo::AttachCamera(FPSCamera* _cameraPtr)
 void CPlayerInfo::DetachCamera()
 {
 	attachedCamera = nullptr;
+}
+
+//Get terrain for playerinfo
+GroundEntity * CPlayerInfo::GetTerrain(void)
+{
+	return m_pTerrain;
 }
 
 void CPlayerInfo::MoveForward(double dt)

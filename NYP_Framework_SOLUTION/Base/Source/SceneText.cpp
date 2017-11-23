@@ -24,7 +24,7 @@
 #include "HardwareAbstraction\Mouse.h"
 #include "HardwareAbstraction\Keyboard.h"
 
-
+#include "Spatial\SpatialPartition.h"
 #include "SceneGraph\SceneGraph.h"
 #include <iostream>
 using namespace std;
@@ -152,6 +152,12 @@ void SceneText::Init()
 	MeshBuilder::GetInstance()->GenerateCube("cubeSG", Color(1.0f, 0.64f, 0.0f), 1.0f);
 	MeshBuilder::GetInstance()->GenerateRay("laser", 10.0f);
 
+	MeshBuilder::GetInstance()->GenerateQuad("GRIDMESH", Color(1, 1, 1), 10.f);
+
+	CSpatialPartition::GetInstance()->Init(100, 100, 10, 10);
+	CSpatialPartition::GetInstance()->SetMesh("GRIDMESH");
+	EntityManager::GetInstance()->SetSpatialPartition(CSpatialPartition::GetInstance());
+
 	// Create the playerinfo instance, which manages all information about the player
 	playerInfo = CPlayerInfo::GetInstance();
 	playerInfo->Init();
@@ -250,6 +256,17 @@ void SceneText::Update(double dt)
 		this->ResetScene();
 	}
 	// <THERE>
+	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
+	{
+		CSceneNode* theNode = CSceneGraph::GetInstance()->GetNode(1);
+		Vector3 pos = theNode->GetEntity()->GetPosition();
+		theNode->GetEntity()->SetPosition(Vector3(pos.x + 50.0f, pos.y, pos.z + 50.0f));
+	}
+
+	if (KeyboardController::GetInstance()->IsKeyReleased('N'))
+	{
+	CSpatialPartition::GetInstance()->PrintSelf();
+	}
 
 	// Update the player position and other details based on keyboard and mouse inputs
 	playerInfo->Update(dt);
