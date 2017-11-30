@@ -4,7 +4,7 @@
 #include "GraphicsManager.h"
 #include "RenderHelper.h"
 #include "../PlayerInfo/PlayerInfo.h"
-
+#include "../LOD/LevelOfDetails.h"
 template <typename T> vector<T> concat(vector<T> &a, vector<T> &b) {
 	vector<T> ret = vector<T>();
 	copy(a.begin(), a.end(), back_inserter(ret));
@@ -29,6 +29,7 @@ CSpatialPartition::CSpatialPartition(void)
 	, zNumOfGrid(0)
 	, yOffset(0.0f)
 	, _meshName("")
+	, theCamera(NULL)
 {
 }
 
@@ -37,6 +38,7 @@ CSpatialPartition::CSpatialPartition(void)
  ********************************************************************************/
 CSpatialPartition::~CSpatialPartition(void)
 {
+	theCamera = NULL;
 	delete [] theGrid;
 }
 
@@ -114,18 +116,34 @@ Update the spatial partition
 ********************************************************************************/
 void CSpatialPartition::Update(void)
 {
-	Vector3 check = CPlayerInfo::GetInstance()->GetTarget();
-	int gridno = CPlayerInfo::GetInstance()->GetGridNo();
-
 	for (int i = 0; i<xNumOfGrid; i++)
 	{
-		for (int j = 0; j<zNumOfGrid; j++)
+		for (int j = 0; j < zNumOfGrid; j++)
 		{
-			Vector3 pos;
-			pos.x = (i * xSize)/xNumOfGrid - (xSize >> 1);
-			pos.z = (j * zSize) / zNumOfGrid - (zSize >> 1);
-			theGrid[i*zNumOfGrid + j].SetRenderThis((bool)check.Dot(pos));
 			theGrid[i*zNumOfGrid + j].Update(&MigrationList);
+
+			// Check visibility
+			if (IsVisible(theCamera->GetCameraPos(),
+				theCamera->GetCameraTarget() - theCamera->GetCameraPos(),
+				i, j) == true)
+			{
+				// Calculate LOD for this CGrid
+				float distance = CalculateDistanceSquare(&(theCamera->GetCameraPos()), i, j);
+				if (distance < LevelOfDetails_Distances[0])
+				{
+					theGrid[i*zNumOfGrid + j].SetDetailLevel(CLevelOfDetails::HIGH_DETAILS);
+				}
+				else if (distance < LevelOfDetails_Distances[1])
+				{
+					theGrid[i*zNumOfGrid + j].SetDetailLevel(CLevelOfDetails::MID_DETAILS);
+				}
+				else
+				{
+					theGrid[i*zNumOfGrid + j].SetDetailLevel(CLevelOfDetails::LOW_DETAILS);
+				}
+			}
+			else
+				theGrid[i*zNumOfGrid + j].SetDetailLevel(CLevelOfDetails::NO_DETAILS);
 		}
 	}
 
@@ -277,10 +295,9 @@ void CSpatialPartition::Remove(EntityBase* theObject)
  ********************************************************************************/
 float CSpatialPartition::CalculateDistanceSquare(Vector3* theCameraPosition, const int xIndex, const int zIndex)
 {
-	float xDistance = (xIndex * xNumOfGrid + (xSize / 2)) - theCameraPosition->x;
-	float yDistance = (zIndex * zNumOfGrid + (zSize / 2)) - theCameraPosition->z;
-
-	return (float) ( xDistance*xDistance + yDistance*yDistance );
+	float xDistance = (xGridSize*xIndex + (xGridSize >> 1) - (xSize >> 1)) - theCameraPosition->x;
+	float zDistance = (zGridSize*zIndex + (zGridSize >> 1) - (zSize >> 1)) - theCameraPosition->z;
+	return (float)(xDistance*xDistance + zDistance*zDistance);
 }
 
 int CSpatialPartition::GetGridNoBasedOnPosition(Vector3 pos)
@@ -314,4 +331,34 @@ void CSpatialPartition::PrintSelf() const
 	else
 		cout << "theGrid : NULL" << endl;
 	cout << "******* End of CSpatialPartition::PrintSelf() **********************************" << endl;
+}
+
+ void CSpatialPartition::SetCamera(FPSCamera * _cameraPtr)
+ {
+	 theCamera = _cameraPtr;
+ }
+
+ void CSpatialPartition::RemoveCamera(void)
+ {
+	 theCamera = nullptr;
+ }
+
+ void CSpatialPartition::SetLevelOfDetails(const float distance_High2Mid, const float distance_Mid2Low)
+{
+	LevelOfDetails_Distances[0] = distance_High2Mid;
+	LevelOfDetails_Distances[1] = distance_Mid2Low;
+}
+
+bool CSpatialPartition::IsVisible(Vector3 theCameraPosition, Vector3 theCameraDirection, const int xIndex, const int zIndex)
+{
+	float xDistance = (xGridSize*xIndex + (xGridSize >> 1) - (xSize >> 1)) - theCameraPosition.x;
+	float zDistance = (zGridSize*xIndex + (zGridSize >> 1) - (zSize >> 1)) - theCameraPosition.z;
+	Vector3 gridCentre(xDistance, 0, zDistance);
+
+	if (xDistance*xDistance + zDistance*zDistance < (xGridSize*xGridSize + zGridSize*zGridSize))
+		return true;
+	if(theCameraDirection.Dot(gridCentre)<0)
+	return false;
+
+	return true;
 }
