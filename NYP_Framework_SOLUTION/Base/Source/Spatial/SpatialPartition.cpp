@@ -174,7 +174,7 @@ void CSpatialPartition::Render(Vector3* theCameraPosition)
 	}
 
 	modelStack.PopMatrix();
-	std::cout << counter << std::endl;
+	//std::cout << counter << std::endl;
 }
 
 /********************************************************************************
