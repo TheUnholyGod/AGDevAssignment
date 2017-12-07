@@ -25,6 +25,9 @@ public:
 	void SplitNode(QTNode* _parent = nullptr, Vector3 _size = Vector3(), Vector3 _pos = Vector3());
 	void AddEntity(EntityBase* _entity);
 
+	void Update(double _dt);
+	void Render();
+	void PrintNode(int RootNo, int depth);
 };
 
 class QuadTree : public Singleton<QuadTree>
@@ -37,13 +40,13 @@ public:
 	QuadTree(Vector3 _size = Vector3(), Vector3 _pos = Vector3());
 	~QuadTree();
 
-	void SplitTree(QTNode* _parent = nullptr, Vector3 _size = Vector3(), Vector3 _pos = Vector3());
 
 	void Init(Vector3 _size, Vector3 _pos);
-	void Update();
+	void Update(double _dt);
 	void Render();
 	static Vector3 GetDir(int index);
 	void AddEntity(EntityBase* _entity);
+	void PrintTree();
 };
 
 #endif

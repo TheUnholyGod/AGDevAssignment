@@ -195,6 +195,7 @@ void SceneText::Update(double dt)
 
 	// Update our entities
 	EntityManager::GetInstance()->Update(dt);
+	QuadTree::GetInstance()->Update(dt);
 
 	// THIS WHOLE CHUNK TILL <THERE> CAN REMOVE INTO ENTITIES LOGIC! Or maybe into a scene function to keep the update clean
 	if(KeyboardController::GetInstance()->IsKeyDown('1'))
@@ -261,7 +262,10 @@ void SceneText::Update(double dt)
 	// <THERE>
 	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
 	{
-		QuadTree::GetInstance()->AddEntity(Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos()));
+		GenericEntity* ge = new GenericEntity(MeshBuilder::GetInstance()->GetMesh("cube"));
+		ge->SetPosition(CPlayerInfo::GetInstance()->GetPos());
+		QuadTree::GetInstance()->AddEntity(ge);
+		QuadTree::GetInstance()->PrintTree();
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyReleased('N'))
@@ -300,6 +304,7 @@ void SceneText::Render()
 	GraphicsManager::GetInstance()->SetPerspectiveProjection(45.0f, 4.0f / 3.0f, 0.1f, 10000.0f);
 	GraphicsManager::GetInstance()->AttachCamera(&camera);
 	EntityManager::GetInstance()->Render();
+	QuadTree::GetInstance()->Render();
 
 	// Setup 2D pipeline then render 2D
 	int halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2;
@@ -360,7 +365,9 @@ void SceneText::ResetScene()
 
 	CUpdateTransformation* baseMtx = new CUpdateTransformation();
 	baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
-	baseMtx->SetSteps(-30, 30);	baseNode->SetUpdateTransformation(baseMtx);
+	baseMtx->SetSteps(-30, 30);
+	baseNode->SetUpdateTransformation(baseMtx);
+
 	grandchildNode->ApplyTranslate(0.0f, 0.0f, 0.01f);
 	CUpdateTransformation* rotation = new CUpdateTransformation();
 	rotation->ApplyUpdate(1.0f, 0.0f, 0.0f, 1.0f);

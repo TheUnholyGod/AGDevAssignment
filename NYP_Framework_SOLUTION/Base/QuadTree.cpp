@@ -54,23 +54,26 @@ void QTNode::SplitNode(QTNode * _parent, Vector3 _size, Vector3 _pos)
 		Vector3 childpos;
 		childpos.Set((_pos.x + offset.x) * dir.x, _pos.y * dir.y, (_pos.z + offset.z) * dir.z);
 		m_children[i] = new QTNode(_parent, childpos, childsize);
+		m_children[i]->m_parent = this;
 	}
 
 	for (auto&_entity : m_entitylist)
 	{
 		for (int i = 0; i < 4; ++i)
 		{
-			if (Collision::CheckOverlap(this->m_children[i]->m_pos - (this->m_children[i]->m_size * 0.5f),
+			bool c = Collision::CheckOverlap(this->m_children[i]->m_pos - (this->m_children[i]->m_size * 0.5f),
 				this->m_children[i]->m_pos + (this->m_children[i]->m_size * 0.5f),
 				_entity->GetPosition() - (_entity->GetScale() * 0.5f),
-				_entity->GetPosition() + (_entity->GetScale() * 0.5f)))
+				_entity->GetPosition() + (_entity->GetScale() * 0.5f));
+			std::cout << c << std::endl;
+			if (c)
 			{
 				this->m_children[i]->AddEntity(_entity);
 				std::cout << "Added to" << i << std::endl;
+				break;
 			}
 		}
 	}
-	m_entitylist.clear();
 }
 
 void QTNode::AddEntity(EntityBase * _entity)
@@ -98,7 +101,51 @@ void QTNode::AddEntity(EntityBase * _entity)
 		}
 	}
 	if (this->m_entitylist.size() > m_maxentitycount)
+	{
 		this->SplitNode(this, this->m_size, this->m_pos);
+		m_entitylist.clear();
+	}
+}
+
+void QTNode::Update(double _dt)
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		if (m_children[i] == nullptr)
+			break;
+		this->m_children[i]->Update(_dt);
+	}
+	for (auto &i : this->m_entitylist)
+		i->Update(_dt);
+
+}
+
+void QTNode::Render()
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		if (m_children[i] == nullptr)
+			break;
+		this->m_children[i]->Render();
+	}
+	for (auto &i : this->m_entitylist)
+		i->Render();
+}
+
+void QTNode::PrintNode(int RootNo,int depth)
+{
+	for (int i = 0; i < depth; ++i)
+	{
+		std::cout << "	";
+	}
+	std::cout << "-" << "Node " << RootNo <<"("<< m_entitylist.size()<<")"<<std::endl;
+
+	for (int i = 0; i < 4; ++i)
+	{
+		if (m_children[i] == nullptr)
+			break;
+		this->m_children[i]->PrintNode(i,depth + 1);
+	}
 }
 
 std::vector<Vector3> QuadTree::m_dir;
@@ -116,22 +163,19 @@ QuadTree::~QuadTree()
 
 }
 
-void QuadTree::SplitTree(QTNode * _parent, Vector3 _size, Vector3 _pos)
-{
-	
-}
-
 void QuadTree::Init(Vector3 _size, Vector3 _pos)
 {
 	m_root = new QTNode(nullptr, _pos, _size);
 }
 
-void QuadTree::Update()
+void QuadTree::Update(double _dt)
 {
+	m_root->Update(_dt);
 }
 
 void QuadTree::Render()
 {
+	m_root->Render();
 }
 
 Vector3 QuadTree::GetDir(int index)
@@ -144,4 +188,13 @@ Vector3 QuadTree::GetDir(int index)
 void QuadTree::AddEntity(EntityBase * _entity)
 {
 	m_root->AddEntity(_entity);
+}
+
+void QuadTree::PrintTree()
+{
+	std::cout << "START" << std::endl;
+
+	this->m_root->PrintNode(0,0);
+	std::cout << "END" << std::endl;
+
 }
