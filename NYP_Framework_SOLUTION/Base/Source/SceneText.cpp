@@ -26,7 +26,11 @@
 
 #include "Spatial\SpatialPartition.h"
 #include "SceneGraph\SceneGraph.h"
+<<<<<<< HEAD
 #include "Enemy\Enemy.h" 
+=======
+#include "../QuadTree.h"
+>>>>>>> 245e26f70837a49d397001ccdf4bc22e2c770215
 #include <iostream>
 using namespace std;
 
@@ -263,9 +267,7 @@ void SceneText::Update(double dt)
 	// <THERE>
 	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
 	{
-		CSceneNode* theNode = CSceneGraph::GetInstance()->GetNode(1);
-		Vector3 pos = theNode->GetEntity()->GetPosition();
-		theNode->GetEntity()->SetPosition(Vector3(pos.x + 50.0f, pos.y, pos.z + 50.0f));
+		QuadTree::GetInstance()->AddEntity(Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos()));
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyReleased('N'))
@@ -333,6 +335,7 @@ void SceneText::Exit()
 
 void SceneText::ResetScene()
 {
+	QuadTree::GetInstance()->Init(Vector3(1000,1000,1000),Vector3());
 	EntityManager::GetInstance()->EmptyList();
 
 	// Create entities into the scene
