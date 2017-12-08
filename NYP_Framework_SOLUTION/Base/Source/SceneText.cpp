@@ -26,7 +26,11 @@
 
 #include "Spatial\SpatialPartition.h"
 #include "SceneGraph\SceneGraph.h"
+<<<<<<< HEAD
+#include "Enemy\Enemy.h" 
+=======
 #include "../QuadTree.h"
+>>>>>>> 245e26f70837a49d397001ccdf4bc22e2c770215
 #include <iostream>
 using namespace std;
 
@@ -164,7 +168,9 @@ void SceneText::Init()
 	// Create the playerinfo instance, which manages all information about the player
 	playerInfo = CPlayerInfo::GetInstance();
 	playerInfo->Init();
-
+	
+	Enemy = new CEnemy();
+	Enemy->Init();
 	// Create and attach the camera to the scene
 	//camera.Init(Vector3(0, 0, 10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	camera.Init(playerInfo->GetPos(), playerInfo->GetTarget(), playerInfo->GetUp());
@@ -394,7 +400,7 @@ void SceneText::ResetScene()
 	groundEntity->SetScale(Vector3(100.0f, 100.0f, 100.0f));
 	groundEntity->SetGrids(Vector3(10.0f, 1.0f, 10.0f));
 	playerInfo->SetTerrain(groundEntity);
-
+	Enemy->SetTerrain(groundEntity);
 	// Setup the 2D entities
 	float halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2.0f;
 	float halfWindowHeight = Application::GetInstance().GetWindowHeight() / 2.0f;
