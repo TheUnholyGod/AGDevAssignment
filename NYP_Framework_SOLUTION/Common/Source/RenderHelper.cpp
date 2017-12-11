@@ -111,3 +111,33 @@ void RenderHelper::RenderText(Mesh* _mesh, const std::string& _text, Color _colo
 	GraphicsManager::GetInstance()->UnbindTexture(0);
 	currProg->UpdateInt("textEnabled", 0);
 }
+
+#include <vector>
+#include "GL\glew.h"
+void RenderHelper::DrawLine(Vector3 origin, Vector3 destination)
+{
+    std::vector<Vertex> vertex_buffer_data;
+    std::vector<GLuint> index_buffer_data;
+    Vertex v;
+
+    v.pos.Set(origin.x, origin.y, origin.z);
+    vertex_buffer_data.push_back(v);
+    v.pos.Set(destination.x, destination.y, destination.z);
+    vertex_buffer_data.push_back(v);
+
+    index_buffer_data.push_back(0);
+    index_buffer_data.push_back(1);
+
+    Mesh *mesh = new Mesh("line");
+
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, vertex_buffer_data.size() * sizeof(Vertex), &vertex_buffer_data[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_data.size() * sizeof(GLuint), &index_buffer_data[0], GL_STATIC_DRAW);
+
+    mesh->mode = Mesh::DRAW_LINES;
+
+    mesh->indexSize = index_buffer_data.size();
+    RenderMesh(mesh);
+    delete mesh;
+}

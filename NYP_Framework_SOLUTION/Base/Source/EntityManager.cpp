@@ -61,8 +61,8 @@ void EntityManager::Render()
 	CSceneGraph::GetInstance()->Render();
 
 	// Render the Spatial Partition
-	if (theSpatialPartition)
-		theSpatialPartition->Render();
+	/*if (theSpatialPartition)
+		theSpatialPartition->Render();*/
 }
 
 // Render the UI entities
