@@ -23,9 +23,9 @@ void CLaserBlaster::Init(void)
 	// The maximum number of ammunition for this magazine for this weapon
 	maxMagRounds = 5;
 	// The current total number of rounds currently carried by this player
-	totalRounds = 10;
+	totalRounds = 1000;
 	// The max total number of rounds currently carried by this player
-	maxTotalRounds = 10;
+	maxTotalRounds = 10000;
 
 	// The time between shots
 	timeBetweenShots = 0.1667;

@@ -55,9 +55,9 @@ std::list<EntityBase*> QTNode::GetEntityList()
 
 void QTNode::SplitNode(QTNode * _parent, Vector3 _size, Vector3 _pos)
 {
-	std::cout << "Split" << std::endl;
 	Vector3 offset = _size * 0.25f;
 	Vector3 childsize = _size * 0.5f;
+	childsize.y = _size.y;
 	for (int i = 0; i < 4; ++i)
 	{
 		Vector3 dir = QuadTree::GetDir(i);
@@ -76,11 +76,9 @@ void QTNode::SplitNode(QTNode * _parent, Vector3 _size, Vector3 _pos)
 				this->m_children[i]->m_pos + (this->m_children[i]->m_size * 0.5f),
 				_entity->GetPosition() - (_entity->GetScale() * 0.5f),
 				_entity->GetPosition() + (_entity->GetScale() * 0.5f));
-			std::cout << c << std::endl;
 			if (c)
 			{
 				this->m_children[i]->AddEntity(_entity);
-				std::cout << "Added to" << i << std::endl;
 				break;
 			}
 		}
@@ -91,7 +89,6 @@ void QTNode::AddEntity(EntityBase * _entity)
 {
 	if (this->m_children[0] == NULL)
 	{
-		std::cout << "Added"<< std::endl;
 
 		this->m_entitylist.push_back(_entity);
 	}
@@ -105,8 +102,6 @@ void QTNode::AddEntity(EntityBase * _entity)
 				_entity->GetPosition()))
 			{
 				this->m_children[i]->AddEntity(_entity);
-				std::cout << "Added to" << i << std::endl;
-				std::cout << m_entitylist.size() << std::endl;
 				break;
 			}
 		}
@@ -127,8 +122,9 @@ void QTNode::Update(double _dt)
 		this->m_children[i]->Update(_dt);
 		
 	}
-	if (this->GetChildrenEntityNo() < m_maxentitycount)
+	if (this->GetChildrenEntityNo() < m_maxentitycount && m_children[0] != nullptr)
 	{
+		this->GetChildrenEntityNo();
 		this->MergeNode();
 	}
 
@@ -166,12 +162,10 @@ void QTNode::Update(double _dt)
 				clear.push_back(i);
 			}
 		}
-		//QuadTree::GetInstance()->PrintTree();
 		for (auto&i : clear)
 		{
 			m_entitylist.remove(i);
 		}
-		//QuadTree::GetInstance()->PrintTree();
 	}
 
 }
@@ -332,8 +326,7 @@ void QTNode::MergeNode()
 		delete m_children[i];
 		m_children[i] = nullptr;
 	}
-	std::cout << "E:" << this->GetChildrenEntityNo() << std::endl;
-
+	std::cout << "FINAL: " << m_entitylist.size() << std::endl;
 }
 
 std::vector<Vector3> QuadTree::m_dir;
