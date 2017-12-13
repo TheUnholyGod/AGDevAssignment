@@ -3,6 +3,7 @@
 #include "Collider/Collider.h"
 #include "Projectile/Laser.h"
 #include "SceneGraph\SceneGraph.h"
+#include "../QuadTree.h"
 
 #include <iostream>
 using namespace std;
@@ -61,8 +62,8 @@ void EntityManager::Render()
 	CSceneGraph::GetInstance()->Render();
 
 	// Render the Spatial Partition
-	if (theSpatialPartition)
-		theSpatialPartition->Render();
+	/*if (theSpatialPartition)
+		theSpatialPartition->Render();*/
 }
 
 // Render the UI entities
@@ -82,9 +83,10 @@ void EntityManager::AddEntity(EntityBase* _newEntity, bool bAddToSpatialPartitio
 {
 	entityList.push_back(_newEntity);
 
+	QuadTree::GetInstance()->AddEntity(_newEntity);
 	// Add to the Spatial Partition
-	if (theSpatialPartition && bAddToSpatialPartition)
-		theSpatialPartition->Add(_newEntity);
+	//if (theSpatialPartition && bAddToSpatialPartition)
+	//	theSpatialPartition->Add(_newEntity);
 }
 
 // Remove an entity from this EntityManager

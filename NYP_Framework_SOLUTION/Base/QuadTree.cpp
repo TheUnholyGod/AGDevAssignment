@@ -6,9 +6,11 @@
 #include "GraphicsManager.h"
 #include "MeshBuilder.h"
 #include "GL\glew.h"
+#include "Collider\Collider.h"
+#include "Source\Projectile\Laser.h"
 
 
-QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3)
+QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3),m_depth(0)
 {
 	for (int i = 0; i < 4; ++i)
 	{
@@ -61,6 +63,7 @@ void QTNode::SplitNode(QTNode * _parent, Vector3 _size, Vector3 _pos)
 		childpos.Set(_pos.x + (offset.x * dir.x), _pos.y * dir.y, _pos.z + (offset.z * dir.z));
 		m_children[i] = new QTNode(_parent, childpos, childsize);
 		m_children[i]->m_parent = this;
+		m_children[i]->m_depth = this->m_depth + 1;
 	}
 
 	for (auto&_entity : m_entitylist)
@@ -106,7 +109,7 @@ void QTNode::AddEntity(EntityBase * _entity)
 			}
 		}
 	}
-	if (this->m_entitylist.size() > m_maxentitycount)
+	if (this->m_entitylist.size() > m_maxentitycount && this->m_depth < QuadTree::GetInstance()->GetDepthLimit())
 	{
 		this->SplitNode(this, this->m_size, this->m_pos);
 		m_entitylist.clear();
@@ -121,79 +124,148 @@ void QTNode::Update(double _dt)
 			break;
 		this->m_children[i]->Update(_dt);
 	}
-	for (auto &i : this->m_entitylist)
-		i->Update(_dt);
+	if (this->GetChildrenEntityNo() < m_maxentitycount)
+		this->MergeNode();
 
+	CheckForCollision();
 }
 
 void QTNode::Render()
 {
-    MS& modelStack = GraphicsManager::GetInstance()->GetModelStack();
+	MS& modelStack = GraphicsManager::GetInstance()->GetModelStack();
 
 	for (int i = 0; i < 4; ++i)
 	{
-        if (m_children[i] == nullptr)
-        {
-            //MS& modelStack = GraphicsManager::GetInstance()->GetModelStack();
-            //modelStack.PushMatrix();
-            //modelStack.Translate(m_pos.x, m_pos.y - 4.9f, m_pos.z);
-            //modelStack.Scale(m_size.x, 1 , m_size.z);
-
-            //modelStack.Rotate(-90, 1, 0, 0);
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            //RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("GRIDMESH"));
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            //RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("sphere"));
-
-            //modelStack.PopMatrix();
-            break;
-        }
+		if (m_children[i] == nullptr)
+			break;
 		this->m_children[i]->Render();
-      /*  Vector3 pos1 = m_children[i]->m_pos;
-        Vector3 pos2;
-        if (i + 1 >= 4)
-        {
-            pos2 = m_children[0]->m_pos;
-            modelStack.PushMatrix();
-            RenderHelper::DrawLine(pos2, pos1);
-            modelStack.PopMatrix();
-        }
-        else
-        {
-            pos2 = m_children[i + 1]->m_pos;
-            modelStack.PushMatrix();
-            RenderHelper::DrawLine(pos1, pos2);
-            modelStack.PopMatrix();
-        }*/
-
-
 	}
+
+
 	for (auto &i : this->m_entitylist)
 		i->Render();
-    modelStack.PushMatrix();
-    modelStack.Translate(m_pos.x, m_pos.y - 4.9f, m_pos.z);
-    RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("sphere"));
+	modelStack.PushMatrix();
+	modelStack.Translate(m_pos.x, m_pos.y - 4.9f, m_pos.z);
+	RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("sphere"));
 
-    modelStack.PopMatrix();
+	modelStack.PopMatrix();
+	for (int i = 0; i < 4; ++i)
+	{
+		modelStack.PushMatrix();
+		Vector3 dir = QuadTree::GetDir(i);
+		Vector3 pos1(m_pos.x + m_size.x * 0.5 * dir.x, -5, m_pos.z + m_size.z * 0.5 * dir.z);
+		Vector3 pos2;
+		if (i + 1 >= 4)
+		{
+			dir = QuadTree::GetDir(0);
+		}
+		else
+		{
+			dir = QuadTree::GetDir(i + 1);
+		}
+		pos2.Set(m_pos.x + m_size.x * 0.5 * dir.x, -5, m_pos.z + m_size.z * 0.5 * dir.z);
+		RenderHelper::DrawLine(pos1, pos2);
+		modelStack.PopMatrix();
+	}
+}
 
-    for (int i = 0; i < 4; ++i)
-    {
-        modelStack.PushMatrix();
-        Vector3 dir = QuadTree::GetDir(i);
-        Vector3 pos1(m_pos.x + m_size.x * 0.5 * dir.x, -5, m_pos.z + m_size.z * 0.5 * dir.z);
-        Vector3 pos2;
-        if (i + 1 >= 4)
-        {
-            dir = QuadTree::GetDir(0);
-        }
-        else
-        {
-            dir = QuadTree::GetDir(i + 1);
-        }
-        pos2.Set(m_pos.x + m_size.x * 0.5 * dir.x, -5, m_pos.z + m_size.z * 0.5 * dir.z);
-        RenderHelper::DrawLine(pos1, pos2);
-        modelStack.PopMatrix();
-    }
+void QTNode::CheckForCollision(void)
+{
+	// Check for Collision
+	std::list<EntityBase*>::iterator colliderThis, colliderThisEnd;
+	std::list<EntityBase*>::iterator colliderThat, colliderThatEnd;
+
+	colliderThisEnd = m_entitylist.end();
+	for (colliderThis = m_entitylist.begin(); colliderThis != colliderThisEnd; ++colliderThis)
+	{
+		// Check if this entity is a CLaser type
+		if ((*colliderThis)->GetIsLaser())
+		{
+			// Dynamic cast it to a CLaser class
+			CLaser* thisEntity = dynamic_cast<CLaser*>(*colliderThis);
+
+			// Check for collision with another collider class
+			colliderThatEnd = m_entitylist.end();
+			int counter = 0;
+			for (colliderThat = m_entitylist.begin(); colliderThat != colliderThatEnd; ++colliderThat)
+			{
+				if (colliderThat == colliderThis)
+					continue;
+
+				if ((*colliderThat)->HasCollider())
+				{
+					Vector3 hitPosition = Vector3(0, 0, 0);
+
+					// Get the minAABB and maxAABB for (*colliderThat)
+					CCollider *thatCollider = dynamic_cast<CCollider*>(*colliderThat);
+					Vector3 thatMinAABB = (*colliderThat)->GetPosition() + thatCollider->GetMinAABB();
+					Vector3 thatMaxAABB = (*colliderThat)->GetPosition() + thatCollider->GetMaxAABB();
+
+					if (Collision::CheckLineSegmentPlane(thisEntity->GetPosition(),
+						thisEntity->GetPosition() - thisEntity->GetDirection() * thisEntity->GetLength(),
+						thatMinAABB, thatMaxAABB,
+						hitPosition) == true)
+					{
+						(*colliderThis)->SetIsDone(true);
+						(*colliderThat)->SetIsDone(true);
+
+						//// Remove from Scene Graph
+						//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
+						//{
+						//	cout << "*** This Entity removed ***" << endl;
+						//}
+						//// Remove from Scene Graph
+						//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
+						//{
+						//	cout << "*** That Entity removed ***" << endl;
+						//}
+
+					}
+				}
+			}
+		}
+		else if ((*colliderThis)->HasCollider())
+		{
+			// This object was derived from a CCollider class, then it will have Collision Detection methods
+			//CCollider *thisCollider = dynamic_cast<CCollider*>(*colliderThis);
+			EntityBase *thisEntity = dynamic_cast<EntityBase*>(*colliderThis);
+
+			// Check for collision with another collider class
+			colliderThatEnd = m_entitylist.end();
+			int counter = 0;
+			for (colliderThat = m_entitylist.begin(); colliderThat != colliderThatEnd; ++colliderThat)
+			{
+				if (colliderThat == colliderThis)
+					continue;
+
+				if ((*colliderThat)->HasCollider())
+				{
+					EntityBase *thatEntity = dynamic_cast<EntityBase*>(*colliderThat);
+					if (Collision::CheckSphereCollision(thisEntity, thatEntity))
+					{
+						if (Collision::CheckAABBCollision(thisEntity, thatEntity))
+						{
+							thisEntity->SetIsDone(true);
+							thatEntity->SetIsDone(true);
+
+							//// Remove from Scene Graph
+							//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
+							//{
+							//	std::cout << "*** This Entity removed ***" << std::endl;
+							//}
+							//// Remove from Scene Graph
+							//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
+							//{
+							//	std::cout << "*** That Entity removed ***" << std::endl;
+							//}
+
+						}
+					}
+				}
+			}
+		}
+	}
+	return;
 }
 
 void QTNode::PrintNode(int RootNo,int depth)
@@ -212,6 +284,31 @@ void QTNode::PrintNode(int RootNo,int depth)
 	}
 }
 
+int QTNode::GetChildrenEntityNo()
+{
+	if (m_children[0] == nullptr)
+		return this->m_entitylist.size();
+	int TotalSize = 0;
+	for (int i = 0; i < 4; ++i)
+		TotalSize += m_children[i]->GetChildrenEntityNo();
+	return TotalSize;
+}
+
+void QTNode::MergeNode()
+{
+	if (!m_children[0])
+		return;
+	for (int i = 0; i < 4; ++i)
+	{
+		for (auto &i : m_children[i]->m_entitylist)
+		{
+			this->m_entitylist.push_back(i);
+		}
+		delete m_children[i];
+		m_children[i] = nullptr;
+	}
+}
+
 std::vector<Vector3> QuadTree::m_dir;
 
 QuadTree::QuadTree(Vector3 _size, Vector3 _pos)
@@ -220,6 +317,7 @@ QuadTree::QuadTree(Vector3 _size, Vector3 _pos)
 	m_dir.push_back(Vector3(-1, 1, 1));
     m_dir.push_back(Vector3(-1, 1, -1));
 	m_dir.push_back(Vector3(1, 1, -1));
+	m_depth_limit = 4;
 }
 
 QuadTree::~QuadTree()

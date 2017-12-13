@@ -13,7 +13,7 @@ class QTNode
 private:
 	QTNode* m_parent;
 	QTNode* m_children[4];
-
+	int m_depth;
 	std::list<EntityBase*> m_entitylist;
 	int m_maxentitycount;
 	Vector3 m_pos, m_size;
@@ -28,6 +28,10 @@ public:
 	void Update(double _dt);
 	void Render();
 	void PrintNode(int RootNo, int depth);
+	int GetChildrenEntityNo();
+	void MergeNode();
+	void CheckForCollision();
+	
 };
 
 class QuadTree : public Singleton<QuadTree>
@@ -36,6 +40,7 @@ class QuadTree : public Singleton<QuadTree>
 private:
 	static std::vector<Vector3> m_dir;
 	QTNode* m_root;
+	int m_depth_limit;
 public:
 	QuadTree(Vector3 _size = Vector3(), Vector3 _pos = Vector3());
 	~QuadTree();
@@ -47,6 +52,7 @@ public:
 	static Vector3 GetDir(int index);
 	void AddEntity(EntityBase* _entity);
 	void PrintTree();
+	int GetDepthLimit() { return m_depth_limit; }
 };
 
 #endif

@@ -26,7 +26,8 @@
 
 #include "Spatial\SpatialPartition.h"
 #include "SceneGraph\SceneGraph.h"
-#include "Enemy\Enemy.h"
+
+#include "Enemy\Enemy.h" 
 #include "../QuadTree.h"
 #include <iostream>
 using namespace std;
@@ -166,8 +167,7 @@ void SceneText::Init()
 	playerInfo = CPlayerInfo::GetInstance();
 	playerInfo->Init();
 	
-	Enemy = new CEnemy();
-	Enemy->Init();
+
 	// Create and attach the camera to the scene
 	//camera.Init(Vector3(0, 0, 10), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	camera.Init(playerInfo->GetPos(), playerInfo->GetTarget(), playerInfo->GetUp());
@@ -265,10 +265,7 @@ void SceneText::Update(double dt)
 	// <THERE>
 	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
 	{
-		GenericEntity* ge = new GenericEntity(MeshBuilder::GetInstance()->GetMesh("cube"));
-		ge->SetPosition(CPlayerInfo::GetInstance()->GetPos());
-		QuadTree::GetInstance()->AddEntity(ge);
-		QuadTree::GetInstance()->PrintTree();
+		Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos());
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyReleased('N'))
@@ -339,7 +336,8 @@ void SceneText::ResetScene()
 {
 	QuadTree::GetInstance()->Init(Vector3(1000,1000,1000),Vector3());
 	EntityManager::GetInstance()->EmptyList();
-
+	Enemy = new CEnemy();
+	Enemy->Init();
 	// Create entities into the scene
 	Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
 	Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
