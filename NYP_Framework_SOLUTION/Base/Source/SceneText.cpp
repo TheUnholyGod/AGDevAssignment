@@ -26,11 +26,8 @@
 
 #include "Spatial\SpatialPartition.h"
 #include "SceneGraph\SceneGraph.h"
-<<<<<<< HEAD
-#include "Enemy\Enemy.h" 
-=======
+#include "Enemy\Enemy.h"
 #include "../QuadTree.h"
->>>>>>> 245e26f70837a49d397001ccdf4bc22e2c770215
 #include <iostream>
 using namespace std;
 

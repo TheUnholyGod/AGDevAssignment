@@ -1,6 +1,12 @@
 #include "QuadTree.h"
 #include "EntityBase.h"
 #include "CollisionCheckFunctions.h"
+#include "Mtx44.h"
+#include "RenderHelper.h"
+#include "GraphicsManager.h"
+#include "MeshBuilder.h"
+#include "GL\glew.h"
+
 
 QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3)
 {
@@ -52,7 +58,7 @@ void QTNode::SplitNode(QTNode * _parent, Vector3 _size, Vector3 _pos)
 	{
 		Vector3 dir = QuadTree::GetDir(i);
 		Vector3 childpos;
-		childpos.Set((_pos.x + offset.x) * dir.x, _pos.y * dir.y, (_pos.z + offset.z) * dir.z);
+		childpos.Set(_pos.x + (offset.x * dir.x), _pos.y * dir.y, _pos.z + (offset.z * dir.z));
 		m_children[i] = new QTNode(_parent, childpos, childsize);
 		m_children[i]->m_parent = this;
 	}
@@ -122,14 +128,72 @@ void QTNode::Update(double _dt)
 
 void QTNode::Render()
 {
+    MS& modelStack = GraphicsManager::GetInstance()->GetModelStack();
+
 	for (int i = 0; i < 4; ++i)
 	{
-		if (m_children[i] == nullptr)
-			break;
+        if (m_children[i] == nullptr)
+        {
+            //MS& modelStack = GraphicsManager::GetInstance()->GetModelStack();
+            //modelStack.PushMatrix();
+            //modelStack.Translate(m_pos.x, m_pos.y - 4.9f, m_pos.z);
+            //modelStack.Scale(m_size.x, 1 , m_size.z);
+
+            //modelStack.Rotate(-90, 1, 0, 0);
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("GRIDMESH"));
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            //RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("sphere"));
+
+            //modelStack.PopMatrix();
+            break;
+        }
 		this->m_children[i]->Render();
+      /*  Vector3 pos1 = m_children[i]->m_pos;
+        Vector3 pos2;
+        if (i + 1 >= 4)
+        {
+            pos2 = m_children[0]->m_pos;
+            modelStack.PushMatrix();
+            RenderHelper::DrawLine(pos2, pos1);
+            modelStack.PopMatrix();
+        }
+        else
+        {
+            pos2 = m_children[i + 1]->m_pos;
+            modelStack.PushMatrix();
+            RenderHelper::DrawLine(pos1, pos2);
+            modelStack.PopMatrix();
+        }*/
+
+
 	}
 	for (auto &i : this->m_entitylist)
 		i->Render();
+    modelStack.PushMatrix();
+    modelStack.Translate(m_pos.x, m_pos.y - 4.9f, m_pos.z);
+    RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("sphere"));
+
+    modelStack.PopMatrix();
+
+    for (int i = 0; i < 4; ++i)
+    {
+        modelStack.PushMatrix();
+        Vector3 dir = QuadTree::GetDir(i);
+        Vector3 pos1(m_pos.x + m_size.x * 0.5 * dir.x, -5, m_pos.z + m_size.z * 0.5 * dir.z);
+        Vector3 pos2;
+        if (i + 1 >= 4)
+        {
+            dir = QuadTree::GetDir(0);
+        }
+        else
+        {
+            dir = QuadTree::GetDir(i + 1);
+        }
+        pos2.Set(m_pos.x + m_size.x * 0.5 * dir.x, -5, m_pos.z + m_size.z * 0.5 * dir.z);
+        RenderHelper::DrawLine(pos1, pos2);
+        modelStack.PopMatrix();
+    }
 }
 
 void QTNode::PrintNode(int RootNo,int depth)
@@ -154,8 +218,8 @@ QuadTree::QuadTree(Vector3 _size, Vector3 _pos)
 {
 	m_dir.push_back(Vector3(1, 1, 1));
 	m_dir.push_back(Vector3(-1, 1, 1));
+    m_dir.push_back(Vector3(-1, 1, -1));
 	m_dir.push_back(Vector3(1, 1, -1));
-	m_dir.push_back(Vector3(-1, 1, -1));
 }
 
 QuadTree::~QuadTree()
