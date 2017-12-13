@@ -8,6 +8,7 @@
 #include "GL\glew.h"
 #include "Collider\Collider.h"
 #include "Source\Projectile\Laser.h"
+#include "Source/EntityManager.h"
 
 
 QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3),m_depth(0)
@@ -16,6 +17,7 @@ QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent
 	{
 		this->m_children[i] = nullptr;
 	}
+	m_entitylist.clear();
 }
 
 QTNode::~QTNode()
@@ -123,11 +125,55 @@ void QTNode::Update(double _dt)
 		if (m_children[i] == nullptr)
 			break;
 		this->m_children[i]->Update(_dt);
+		
 	}
 	if (this->GetChildrenEntityNo() < m_maxentitycount)
+	{
 		this->MergeNode();
+	}
 
 	CheckForCollision();
+
+	std::list<EntityBase*>::iterator it, end;
+	end = m_entitylist.end();
+	it = m_entitylist.begin();
+	while (it != end)
+	{
+		if ((*it)->IsDone())
+		{
+			// Delete if done
+			EntityManager::GetInstance()->RemoveEntity(*it);
+			it = m_entitylist.erase(it);
+		}
+		else
+		{
+			// Move on otherwise
+			++it;
+		}
+	}
+
+	if (m_entitylist.size() > 0)
+	{
+		std::list<EntityBase*> clear;
+		for (auto &i : m_entitylist)
+		{
+			if (Collision::CheckOverlap(this->m_pos - (this->m_size * 0.5f),
+				m_pos + (this->m_size * 0.5f),
+				i->GetPosition(),
+				i->GetPosition()) == false)
+			{
+				QuadTree::GetInstance()->RefactorThis(i);
+				clear.push_back(i);
+			}
+		}
+		//QuadTree::GetInstance()->PrintTree();
+		for (auto&i : clear)
+		{
+			m_entitylist.remove(i);
+		}
+		//QuadTree::GetInstance()->PrintTree();
+	}
+
 }
 
 void QTNode::Render()
@@ -208,18 +254,6 @@ void QTNode::CheckForCollision(void)
 					{
 						(*colliderThis)->SetIsDone(true);
 						(*colliderThat)->SetIsDone(true);
-
-						//// Remove from Scene Graph
-						//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
-						//{
-						//	cout << "*** This Entity removed ***" << endl;
-						//}
-						//// Remove from Scene Graph
-						//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
-						//{
-						//	cout << "*** That Entity removed ***" << endl;
-						//}
-
 					}
 				}
 			}
@@ -247,24 +281,13 @@ void QTNode::CheckForCollision(void)
 						{
 							thisEntity->SetIsDone(true);
 							thatEntity->SetIsDone(true);
-
-							//// Remove from Scene Graph
-							//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThis)) == true)
-							//{
-							//	std::cout << "*** This Entity removed ***" << std::endl;
-							//}
-							//// Remove from Scene Graph
-							//if (CSceneGraph::GetInstance()->DeleteNode((*colliderThat)) == true)
-							//{
-							//	std::cout << "*** That Entity removed ***" << std::endl;
-							//}
-
 						}
 					}
 				}
 			}
 		}
 	}
+	
 	return;
 }
 
@@ -300,6 +323,8 @@ void QTNode::MergeNode()
 		return;
 	for (int i = 0; i < 4; ++i)
 	{
+		if (m_children[i]->m_children[0] != nullptr)
+			m_children[i]->MergeNode();
 		for (auto &i : m_children[i]->m_entitylist)
 		{
 			this->m_entitylist.push_back(i);
@@ -307,6 +332,8 @@ void QTNode::MergeNode()
 		delete m_children[i];
 		m_children[i] = nullptr;
 	}
+	std::cout << "E:" << this->GetChildrenEntityNo() << std::endl;
+
 }
 
 std::vector<Vector3> QuadTree::m_dir;
@@ -333,6 +360,11 @@ void QuadTree::Init(Vector3 _size, Vector3 _pos)
 void QuadTree::Update(double _dt)
 {
 	m_root->Update(_dt);
+	for (auto &i : m_refactorentitylist)
+	{
+		AddEntity(i);
+	}
+	m_refactorentitylist.clear();
 }
 
 void QuadTree::Render()
@@ -359,4 +391,10 @@ void QuadTree::PrintTree()
 	this->m_root->PrintNode(0,0);
 	std::cout << "END" << std::endl;
 
+}
+
+void QuadTree::RefactorThis(EntityBase * _entity)
+{
+	m_refactorentitylist.push_back(_entity);
+	std::cout << "Refactor" << std::endl;
 }

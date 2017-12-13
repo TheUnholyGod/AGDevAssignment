@@ -198,7 +198,6 @@ void SceneText::Update(double dt)
 
 	// Update our entities
 	EntityManager::GetInstance()->Update(dt);
-	QuadTree::GetInstance()->Update(dt);
 
 	// THIS WHOLE CHUNK TILL <THERE> CAN REMOVE INTO ENTITIES LOGIC! Or maybe into a scene function to keep the update clean
 	if(KeyboardController::GetInstance()->IsKeyDown('1'))
@@ -258,14 +257,14 @@ void SceneText::Update(double dt)
 	{
 		cout << "Mouse Wheel has offset in Y-axis of " << MouseController::GetInstance()->GetMouseScrollStatus(MouseController::SCROLL_TYPE_YOFFSET) << endl;
 	}
-	if (KeyboardController::GetInstance()->IsKeyPressed('R'))
+	if (KeyboardController::GetInstance()->IsKeyPressed('B'))
 	{
 		this->ResetScene();
 	}
 	// <THERE>
 	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
 	{
-		Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos());
+		QuadTree::GetInstance()->PrintTree();
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyReleased('N'))
@@ -304,7 +303,6 @@ void SceneText::Render()
 	GraphicsManager::GetInstance()->SetPerspectiveProjection(45.0f, 4.0f / 3.0f, 0.1f, 10000.0f);
 	GraphicsManager::GetInstance()->AttachCamera(&camera);
 	EntityManager::GetInstance()->Render();
-	QuadTree::GetInstance()->Render();
 
 	// Setup 2D pipeline then render 2D
 	int halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2;
@@ -336,51 +334,51 @@ void SceneText::ResetScene()
 {
 	QuadTree::GetInstance()->Init(Vector3(1000,1000,1000),Vector3());
 	EntityManager::GetInstance()->EmptyList();
-	Enemy = new CEnemy();
-	Enemy->Init();
-	// Create entities into the scene
-	Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
-	Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
-	GenericEntity* aCube = Create::Entity("cube", Vector3(-20.0f, 0.0f, -20.0f));
-	aCube->SetCollider(true);
-	aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
-	aCube->InitLOD("cube", "sphere", "cubeSG");
-	CSceneNode* theNode = CSceneGraph::GetInstance()->AddNode(aCube);
-	if (theNode == NULL)
-	{
-		cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
-	}
+	//Enemy = new CEnemy();
+	//Enemy->Init();
+	//// Create entities into the scene
+	//Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
+	//Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
+	//GenericEntity* aCube = Create::Entity("cube", Vector3(-20.0f, 0.0f, -20.0f));
+	//aCube->SetCollider(true);
+	//aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+	//aCube->InitLOD("cube", "sphere", "cubeSG");
+	//CSceneNode* theNode = CSceneGraph::GetInstance()->AddNode(aCube);
+	//if (theNode == NULL)
+	//{
+	//	cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
+	//}
 
-	GenericEntity* baseCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
-	CSceneNode* baseNode = CSceneGraph::GetInstance()->AddNode(baseCube);
-	GenericEntity* childCube = Create::Asset("cube", Vector3(0.0f, 0.0f, 0.0f));
-	CSceneNode* childNode = baseNode->AddChild(childCube);
-	childNode->ApplyTranslate(0.0f, 1.0f, 0.0f);
-	GenericEntity* grandchildCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
-	CSceneNode* grandchildNode = childNode->AddChild(grandchildCube);
-	grandchildNode->ApplyTranslate(0.0f, 0.0f, 1.0f);
+	//GenericEntity* baseCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
+	//CSceneNode* baseNode = CSceneGraph::GetInstance()->AddNode(baseCube);
+	//GenericEntity* childCube = Create::Asset("cube", Vector3(0.0f, 0.0f, 0.0f));
+	//CSceneNode* childNode = baseNode->AddChild(childCube);
+	//childNode->ApplyTranslate(0.0f, 1.0f, 0.0f);
+	//GenericEntity* grandchildCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
+	//CSceneNode* grandchildNode = childNode->AddChild(grandchildCube);
+	//grandchildNode->ApplyTranslate(0.0f, 0.0f, 1.0f);
 
-	GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
-	anotherCube->SetCollider(true);
-	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+	//GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
+	//anotherCube->SetCollider(true);
+	//anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
 
-	CUpdateTransformation* baseMtx = new CUpdateTransformation();
-	baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
-	baseMtx->SetSteps(-30, 30);
-	baseNode->SetUpdateTransformation(baseMtx);
+	//CUpdateTransformation* baseMtx = new CUpdateTransformation();
+	//baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
+	//baseMtx->SetSteps(-30, 30);
+	//baseNode->SetUpdateTransformation(baseMtx);
 
-	grandchildNode->ApplyTranslate(0.0f, 0.0f, 0.01f);
-	CUpdateTransformation* rotation = new CUpdateTransformation();
-	rotation->ApplyUpdate(1.0f, 0.0f, 0.0f, 1.0f);
-	rotation->SetSteps(-120, 60);
-	grandchildNode->SetUpdateTransformation(rotation);
+	//grandchildNode->ApplyTranslate(0.0f, 0.0f, 0.01f);
+	//CUpdateTransformation* rotation = new CUpdateTransformation();
+	//rotation->ApplyUpdate(1.0f, 0.0f, 0.0f, 1.0f);
+	//rotation->SetSteps(-120, 60);
+	//grandchildNode->SetUpdateTransformation(rotation);
 
 
-	CSceneNode* anotherNode = theNode->AddChild(anotherCube);
-	if (theNode == NULL)
-	{
-		cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
-	}
+	//CSceneNode* anotherNode = theNode->AddChild(anotherCube);
+	//if (theNode == NULL)
+	//{
+	//	cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
+	//}
 
 	groundEntity = Create::Ground("GRASS_DARKGREEN", "GEO_GRASS_LIGHTGREEN");
 	//	Create::Text3DObject("text", Vector3(0.0f, 0.0f, 0.0f), "DM2210", Vector3(10.0f, 10.0f, 10.0f), Color(0, 1, 1));
@@ -395,7 +393,7 @@ void SceneText::ResetScene()
 	groundEntity->SetScale(Vector3(100.0f, 100.0f, 100.0f));
 	groundEntity->SetGrids(Vector3(10.0f, 1.0f, 10.0f));
 	playerInfo->SetTerrain(groundEntity);
-	Enemy->SetTerrain(groundEntity);
+	//Enemy->SetTerrain(groundEntity);
 	// Setup the 2D entities
 	float halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2.0f;
 	float halfWindowHeight = Application::GetInstance().GetWindowHeight() / 2.0f;
