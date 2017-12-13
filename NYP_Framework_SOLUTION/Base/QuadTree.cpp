@@ -183,9 +183,14 @@ void QTNode::Render()
 
 
 	for (auto &i : this->m_entitylist)
+	{
 		i->Render();
+		modelStack.PushMatrix();
+		RenderHelper::DrawLine(Vector3(this->m_pos.x, m_pos.y - 5, m_pos.z), i->GetPosition());
+		modelStack.PopMatrix();
+	}
 	modelStack.PushMatrix();
-	modelStack.Translate(m_pos.x, m_pos.y - 4.9f, m_pos.z);
+	modelStack.Translate(m_pos.x, m_pos.y - 5, m_pos.z);
 	RenderHelper::RenderMesh(MeshBuilder::GetInstance()->GetMesh("sphere"));
 
 	modelStack.PopMatrix();
