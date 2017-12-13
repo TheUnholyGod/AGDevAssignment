@@ -27,6 +27,8 @@ CPlayerInfo::CPlayerInfo(void)
 	, m_pTerrain(NULL)
 	, primaryWeapon(NULL)
 	, secondaryWeapon(NULL)
+	, points(0)
+	, enemykilled(0)
 {
 }
 
