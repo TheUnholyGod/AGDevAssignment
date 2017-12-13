@@ -71,6 +71,15 @@ public:
 	void MoveLeft(double dt);
 	void MoveRight(double dt);
 
+	//Assignment getters/ setters
+
+	int GetPoints();
+	void SetPoints();
+
+	int GetEnemyPts();
+	int SetEnemyPts();
+
+
 	// Get position
 	Vector3 GetPos(void) const;
 	// Get target
@@ -127,4 +136,9 @@ private:
 	Vector3 maxzoom;
 	
 	int m_gridNo;
+
+
+	//Assignment
+	int enemykilled;
+	int points;
 };
