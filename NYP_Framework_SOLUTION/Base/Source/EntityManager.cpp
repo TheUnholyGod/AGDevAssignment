@@ -4,6 +4,7 @@
 #include "Projectile/Laser.h"
 #include "SceneGraph\SceneGraph.h"
 #include "../QuadTree.h"
+#include "GenericEntity.h"
 
 #include <iostream>
 using namespace std;
@@ -27,24 +28,24 @@ void EntityManager::Update(double _dt)
 		theSpatialPartition->Update();
 
 	// Check for Collision amongst entities with collider properties
-	CheckForCollision();
+	QuadTree::GetInstance()->Update(_dt);
 
 	// Clean up entities that are done
-	it = entityList.begin();
-	while (it != end)
-	{
-		if ((*it)->IsDone())
-		{
-			// Delete if done
-			delete *it;
-			it = entityList.erase(it);
-		}
-		else
-		{
-			// Move on otherwise
-			++it;
-		}
-	}
+	//it = entityList.begin();
+	//while (it != end)
+	//{
+	//	if ((*it)->IsDone())
+	//	{
+	//		// Delete if done
+	//		delete *it;
+	//		it = entityList.erase(it);
+	//	}
+	//	else
+	//	{
+	//		// Move on otherwise
+	//		++it;
+	//	}
+	//}
 }
 
 // Render all entities
@@ -57,6 +58,7 @@ void EntityManager::Render()
 	{
 		(*it)->Render();
 	}
+	QuadTree::GetInstance()->Render();
 
 	// Render the Scene Graph
 	CSceneGraph::GetInstance()->Render();
@@ -82,8 +84,8 @@ void EntityManager::RenderUI()
 void EntityManager::AddEntity(EntityBase* _newEntity, bool bAddToSpatialPartition)
 {
 	entityList.push_back(_newEntity);
-
-	QuadTree::GetInstance()->AddEntity(_newEntity);
+	if(_newEntity->HasCollider())
+		QuadTree::GetInstance()->AddEntity(_newEntity);
 	// Add to the Spatial Partition
 	//if (theSpatialPartition && bAddToSpatialPartition)
 	//	theSpatialPartition->Add(_newEntity);
@@ -92,6 +94,8 @@ void EntityManager::AddEntity(EntityBase* _newEntity, bool bAddToSpatialPartitio
 // Remove an entity from this EntityManager
 bool EntityManager::RemoveEntity(EntityBase* _existingEntity)
 {
+	entityList.remove(_existingEntity);
+	return true;
 	// Find the entity's iterator
 	std::list<EntityBase*>::iterator findIter = std::find(entityList.begin(), entityList.end(), _existingEntity);
 
@@ -171,16 +175,6 @@ EntityManager::~EntityManager()
 // Check for overlap
 bool EntityManager::CheckOverlap(Vector3 thisMinAABB, Vector3 thisMaxAABB, Vector3 thatMinAABB, Vector3 thatMaxAABB)
 {
-	// Check if this object is overlapping that object
-	/*
-	if (((thatMinAABB.x >= thisMinAABB.x) && (thatMinAABB.x <= thisMaxAABB.x) &&
-	(thatMinAABB.y >= thisMinAABB.y) && (thatMinAABB.y <= thisMaxAABB.y) &&
-	(thatMinAABB.z >= thisMinAABB.z) && (thatMinAABB.z <= thisMaxAABB.z))
-	||
-	((thatMaxAABB.x >= thisMinAABB.x) && (thatMaxAABB.x <= thisMaxAABB.x) &&
-	(thatMaxAABB.y >= thisMinAABB.y) && (thatMaxAABB.y <= thisMaxAABB.y) &&
-	(thatMaxAABB.z >= thisMinAABB.z) && (thatMaxAABB.z <= thisMaxAABB.z)))
-	*/
 	if (((thatMinAABB >= thisMinAABB) && (thatMinAABB <= thisMaxAABB))
 		||
 		((thatMaxAABB >= thisMinAABB) && (thatMaxAABB <= thisMaxAABB)))

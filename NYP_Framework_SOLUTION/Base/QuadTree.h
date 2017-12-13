@@ -41,6 +41,8 @@ private:
 	static std::vector<Vector3> m_dir;
 	QTNode* m_root;
 	int m_depth_limit;
+	std::list<EntityBase*> m_refactorentitylist;
+
 public:
 	QuadTree(Vector3 _size = Vector3(), Vector3 _pos = Vector3());
 	~QuadTree();
@@ -53,6 +55,7 @@ public:
 	void AddEntity(EntityBase* _entity);
 	void PrintTree();
 	int GetDepthLimit() { return m_depth_limit; }
+	void RefactorThis(EntityBase* _entity);
 };
 
 #endif
