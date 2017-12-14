@@ -10,12 +10,15 @@
 #include "../WeaponInfo/LaserBlaster.h"
 #include "../WeaponInfo/Grenadethrow.h"
 #include "../Spatial/SpatialPartition.h"
+#include "../../QuadTree.h"
+#include "../../CollisionCheckFunctions.h"
 // Allocating and initializing CPlayerInfo's static data member.  
 // The pointer is allocated but not the object's constructor.
 CPlayerInfo *CPlayerInfo::s_instance = 0;
 
 CPlayerInfo::CPlayerInfo(void)
-	: m_dSpeed(40.0)
+	: GenericEntity(nullptr)
+    , m_dSpeed(40.0)
 	, m_dAcceleration(10.0)
 	, m_bJumpUpwards(false)
 	, m_dJumpSpeed(10.0)
@@ -73,6 +76,9 @@ void CPlayerInfo::Init(void)
 
 	maxzoom.Set(10, 10, 10);
 	
+    // Initialise the Collider
+    this->SetCollider(true);
+    this->SetAABB(Vector3(1, 1, 1), Vector3(-1, -1, -1));
 }
 
 // Returns true if the player is on ground
@@ -268,8 +274,11 @@ void CPlayerInfo::UpdateFreeFall(double dt)
 /********************************************************************************
  Hero Update
  ********************************************************************************/
+std::list<EntityBase*> colliderlist;
+
 void CPlayerInfo::Update(double dt)
 {
+    colliderlist = QuadTree::GetInstance()->GetEntityList(position);
 	double mouse_diff_x, mouse_diff_y;
 	MouseController::GetInstance()->GetMouseDelta(mouse_diff_x, mouse_diff_y);
 
@@ -488,10 +497,33 @@ void CPlayerInfo::MoveForward(double dt)
 	Vector3 rightUV;
 	Vector3 temp(viewVector);
 	temp.y = 0;
-	position += temp.Normalized() * (float)m_dSpeed * (float)dt;
-	Constrain();
-	// Update the target
-	target = position + viewVector;
+
+
+    std::list<EntityBase*>::iterator collider;
+    bool move = true;
+    for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
+    {
+        if ((*collider)->HasCollider())
+        {
+            if (Collision::CheckSphereCollision(this, *collider))
+            {
+                if (Collision::CheckAABBCollision(this, *collider))
+                {
+                    std::cout << "COLLIDE" << std::endl;
+                    move = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (move)
+    {
+        position += viewVector.Normalized() * (float)m_dSpeed * (float)dt;
+        Constrain();
+        // Update the target
+        target = position + viewVector;
+    }
 }
 
 void CPlayerInfo::MoveBackward(double dt)
@@ -500,10 +532,31 @@ void CPlayerInfo::MoveBackward(double dt)
 	Vector3 rightUV;
 	Vector3 temp(viewVector);
 	temp.y = 0;
-	position -= temp.Normalized() * (float)m_dSpeed * (float)dt;
-	Constrain();
-	// Update the target
-	target = position + viewVector;
+    std::list<EntityBase*>::iterator collider;
+    bool move = true;
+    for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
+    {
+        if ((*collider)->HasCollider())
+        {
+            if (Collision::CheckSphereCollision(this, *collider))
+            {
+                if (Collision::CheckAABBCollision(this, *collider))
+                {
+                    std::cout << "COLLIDE" << std::endl;
+                    move = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (move)
+    {
+        position -= viewVector.Normalized() * (float)m_dSpeed * (float)dt;
+        Constrain();
+        // Update the target
+        target = position + viewVector;
+    }
 }
 
 void CPlayerInfo::MoveLeft(double dt)
@@ -513,10 +566,31 @@ void CPlayerInfo::MoveLeft(double dt)
 	rightUV = (viewVector.Normalized()).Cross(up);
 	rightUV.y = 0;
 	rightUV.Normalize();
-	position -= rightUV * (float)m_dSpeed * (float)dt;
-	Constrain();
-	// Update the target
-	target = position + viewVector;
+    std::list<EntityBase*>::iterator collider;
+    bool move = true;
+    for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
+    {
+        if ((*collider)->HasCollider())
+        {
+            if (Collision::CheckSphereCollision(this, *collider))
+            {
+                if (Collision::CheckAABBCollision(this, *collider))
+                {
+                    std::cout << "COLLIDE" << std::endl;
+                    move = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (move)
+    {
+        position -= viewVector.Normalized() * (float)m_dSpeed * (float)dt;
+        Constrain();
+        // Update the target
+        target = position + viewVector;
+    }
 }
 
 void CPlayerInfo::MoveRight(double dt)
@@ -526,8 +600,29 @@ void CPlayerInfo::MoveRight(double dt)
 	rightUV = (viewVector.Normalized()).Cross(up);
 	rightUV.y = 0;
 	rightUV.Normalize();
-	position += rightUV * (float)m_dSpeed * (float)dt;
-	Constrain();
-	// Update the target
-	target = position + viewVector;
+    std::list<EntityBase*>::iterator collider;
+    bool move = true;
+    for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
+    {
+        if ((*collider)->HasCollider())
+        {
+            if (Collision::CheckSphereCollision(this, *collider))
+            {
+                if (Collision::CheckAABBCollision(this, *collider))
+                {
+                    std::cout << "COLLIDE" << std::endl;
+                    move = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (move)
+    {
+        position += viewVector.Normalized() * (float)m_dSpeed * (float)dt;
+        Constrain();
+        // Update the target
+        target = position + viewVector;
+    }
 }
