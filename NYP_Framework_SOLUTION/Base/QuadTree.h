@@ -22,6 +22,8 @@ public:
 	QTNode(QTNode* _parent = nullptr, Vector3 _pos = Vector3(), Vector3 _size = Vector3());
 	~QTNode();
 	std::list<EntityBase*> GetEntityList();
+    std::list<EntityBase*> GetEntityList(Vector3 _pos);
+
 	void SplitNode(QTNode* _parent = nullptr, Vector3 _size = Vector3(), Vector3 _pos = Vector3());
 	void AddEntity(EntityBase* _entity);
 
@@ -56,6 +58,8 @@ public:
 	void PrintTree();
 	int GetDepthLimit() { return m_depth_limit; }
 	void RefactorThis(EntityBase* _entity);
+    std::list<EntityBase*> GetEntityList(Vector3 _pos);
+
 };
 
 #endif

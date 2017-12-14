@@ -264,7 +264,7 @@ void SceneText::Update(double dt)
 	// <THERE>
 	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
 	{
-		Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos());
+		Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos(),Vector3(10,10,10));
 		
 	}
 

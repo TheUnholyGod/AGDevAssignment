@@ -53,6 +53,24 @@ std::list<EntityBase*> QTNode::GetEntityList()
 	return this->m_entitylist;
 }
 
+std::list<EntityBase*> QTNode::GetEntityList(Vector3 _pos)
+{
+    if (m_children[0] == nullptr)
+        return m_entitylist;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        bool c = Collision::CheckOverlap(this->m_children[i]->m_pos - (this->m_children[i]->m_size * 0.5f),
+            this->m_children[i]->m_pos + (this->m_children[i]->m_size * 0.5f),
+            _pos,
+            _pos);
+        if (c)
+        {
+            return m_children[0]->GetEntityList(_pos);
+        }
+    }
+}
+
 void QTNode::SplitNode(QTNode * _parent, Vector3 _size, Vector3 _pos)
 {
 	Vector3 offset = _size * 0.25f;
@@ -395,4 +413,9 @@ void QuadTree::RefactorThis(EntityBase * _entity)
 {
 	m_refactorentitylist.push_back(_entity);
 	std::cout << "Refactor" << std::endl;
+}
+
+std::list<EntityBase*> QuadTree::GetEntityList(Vector3 _pos)
+{
+    return m_root->GetEntityList(_pos);
 }

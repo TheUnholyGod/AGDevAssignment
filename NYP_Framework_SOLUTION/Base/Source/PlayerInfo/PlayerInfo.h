@@ -3,8 +3,9 @@
 #include "../FPSCamera.h"
 #include "../GroundEntity.h"
 #include "../WeaponInfo/WeaponInfo.h"
+#include "../GenericEntity.h"
 
-class CPlayerInfo
+class CPlayerInfo : public GenericEntity
 {
 protected:
 	static CPlayerInfo *s_instance;
@@ -113,7 +114,7 @@ public:
 	int GetGridNo() { return this->m_gridNo; }
 private:
 	Vector3 defaultPosition, defaultTarget, defaultUp;
-	Vector3 position, target, up;
+	Vector3 target, up;
 	Vector3 maxBoundary, minBoundary;
 	GroundEntity* m_pTerrain;
 
