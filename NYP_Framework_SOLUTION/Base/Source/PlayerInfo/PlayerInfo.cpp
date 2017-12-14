@@ -563,11 +563,11 @@ void CPlayerInfo::MoveLeft(double dt)
 {
 	Vector3 viewVector = target - position;
 	Vector3 rightUV;
-	rightUV = (viewVector.Normalized()).Cross(up);
-	rightUV.y = 0;
-	rightUV.Normalize();
+	//rightUV = (viewVector.Normalized()).Cross(up);
+	//rightUV.y = 0;
+	//rightUV.Normalize();
     std::list<EntityBase*>::iterator collider;
-    bool move = true;
+    bool move1 = true;
     for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
     {
         if ((*collider)->HasCollider())
@@ -577,19 +577,25 @@ void CPlayerInfo::MoveLeft(double dt)
                 if (Collision::CheckAABBCollision(this, *collider))
                 {
                     std::cout << "COLLIDE" << std::endl;
-                    move = false;
+                    move1 = false;
                     break;
                 }
             }
         }
     }
 
-    if (move)
+    if (move1)
     {
-        position -= viewVector.Normalized() * (float)m_dSpeed * (float)dt;
-        Constrain();
-        // Update the target
-        target = position + viewVector;
+        //position -= viewVector.Normalized() * (float)m_dSpeed * (float)dt;
+        //Constrain();
+        //// Update the target
+        //target = position + viewVector;
+
+		rightUV = (viewVector.Normalized()).Cross(up);
+		rightUV.y = 0;
+		rightUV.Normalize();
+		position -= rightUV * (float)m_dSpeed * (float)dt;
+		target = position + viewVector;
     }
 }
 
@@ -597,11 +603,11 @@ void CPlayerInfo::MoveRight(double dt)
 {
 	Vector3 viewVector = target - position;
 	Vector3 rightUV;
-	rightUV = (viewVector.Normalized()).Cross(up);
-	rightUV.y = 0;
-	rightUV.Normalize();
+	//rightUV = (viewVector.Normalized()).Cross(up);
+	//rightUV.y = 0;
+	//rightUV.Normalize();
     std::list<EntityBase*>::iterator collider;
-    bool move = true;
+    bool move1 = true;
     for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
     {
         if ((*collider)->HasCollider())
@@ -611,18 +617,24 @@ void CPlayerInfo::MoveRight(double dt)
                 if (Collision::CheckAABBCollision(this, *collider))
                 {
                     std::cout << "COLLIDE" << std::endl;
-                    move = false;
+                    move1 = false;
                     break;
                 }
             }
         }
     }
 
-    if (move)
+    if (move1)
     {
-        position += viewVector.Normalized() * (float)m_dSpeed * (float)dt;
-        Constrain();
-        // Update the target
-        target = position + viewVector;
+        //position += viewVector.Normalized() * (float)m_dSpeed * (float)dt;
+        //Constrain();
+        //// Update the target
+        //target = position + viewVector;
+
+		rightUV = (viewVector.Normalized()).Cross(up);
+		rightUV.y = 0;
+		rightUV.Normalize();
+		position += rightUV * (float)m_dSpeed * (float)dt;
+		target = position + viewVector;
     }
 }
