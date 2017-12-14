@@ -136,9 +136,9 @@ void SceneText::Init()
 	MeshBuilder::GetInstance()->GetMesh("cone")->material.kDiffuse.Set(0.99f, 0.99f, 0.99f);
 	MeshBuilder::GetInstance()->GetMesh("cone")->material.kSpecular.Set(0.f, 0.f, 0.f);
 	MeshBuilder::GetInstance()->GenerateQuad("GRASS_DARKGREEN", Color(1, 1, 1), 1.f);
-	MeshBuilder::GetInstance()->GetMesh("GRASS_DARKGREEN")->textureID = LoadTGA("Image//grass_darkgreen.tga");
+	MeshBuilder::GetInstance()->GetMesh("GRASS_DARKGREEN")->textureID = LoadTGA("Image//tiles.tga");
 	MeshBuilder::GetInstance()->GenerateQuad("GEO_GRASS_LIGHTGREEN", Color(1, 1, 1), 1.f);
-	MeshBuilder::GetInstance()->GetMesh("GEO_GRASS_LIGHTGREEN")->textureID = LoadTGA("Image//grass_lightgreen.tga");
+	MeshBuilder::GetInstance()->GetMesh("GEO_GRASS_LIGHTGREEN")->textureID = LoadTGA("Image//tiles.tga");
 
 	MeshBuilder::GetInstance()->GenerateQuad("SKYBOX_FRONT", Color(1, 1, 1), 1.f);
 	MeshBuilder::GetInstance()->GenerateQuad("SKYBOX_BACK", Color(1, 1, 1), 1.f);
@@ -163,6 +163,40 @@ void SceneText::Init()
 	CSpatialPartition::GetInstance()->SetLevelOfDetails(40000.0f, 160000.0f);
 	EntityManager::GetInstance()->SetSpatialPartition(CSpatialPartition::GetInstance());
 
+	//Tree-------------------------------
+	MeshBuilder::GetInstance()->GenerateOBJ("tree", "OBJ//tree1.obj");
+	MeshBuilder::GetInstance()->GetMesh("tree")->textureID = LoadTGA("Image//tree1.tga");
+	
+	//LOD (Tree Leaves)
+	MeshBuilder::GetInstance()->GenerateOBJ("tree2", "OBJ//tree2.obj");
+	MeshBuilder::GetInstance()->GetMesh("tree2")->textureID = LoadTGA("Image//tree2.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("tree3", "OBJ//tree3.obj");
+	MeshBuilder::GetInstance()->GetMesh("tree3")->textureID = LoadTGA("Image//tree2.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("tree4", "OBJ//tree4.obj");
+	MeshBuilder::GetInstance()->GetMesh("tree4")->textureID = LoadTGA("Image//tree2.tga");
+	//Ai---------------------------------
+	MeshBuilder::GetInstance()->GenerateOBJ("robot", "OBJ//robotbody.obj");
+	MeshBuilder::GetInstance()->GetMesh("robot")->textureID = LoadTGA("Image//enemy.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("robothands", "OBJ//robothands.obj");
+	MeshBuilder::GetInstance()->GetMesh("robothands")->textureID = LoadTGA("Image//enemy.tga");
+
+	//Tank---------------------------------
+	MeshBuilder::GetInstance()->GenerateOBJ("tanktop", "OBJ//tanktop.obj");
+	MeshBuilder::GetInstance()->GetMesh("tanktop")->textureID = LoadTGA("Image//tank.tga");
+	//LOD 
+	MeshBuilder::GetInstance()->GenerateOBJ("tankbody", "OBJ//tankbody3.obj");
+	MeshBuilder::GetInstance()->GetMesh("tankbody")->textureID = LoadTGA("Image//tank.tga");
+
+	//85%
+	MeshBuilder::GetInstance()->GenerateOBJ("tankbody2", "OBJ//tankbody2.obj");
+	MeshBuilder::GetInstance()->GetMesh("tankbody2")->textureID = LoadTGA("Image//tank.tga");
+	
+	//75%
+	MeshBuilder::GetInstance()->GenerateOBJ("tankbody3", "OBJ//tankbody.obj");
+	MeshBuilder::GetInstance()->GetMesh("tankbody3")->textureID = LoadTGA("Image//tank.tga");
 	// Create the playerinfo instance, which manages all information about the player
 	playerInfo = CPlayerInfo::GetInstance();
 	playerInfo->Init();
@@ -350,29 +384,27 @@ void SceneText::ResetScene()
 	//	cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
 	//}
 
-	//GenericEntity* baseCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
-	//CSceneNode* baseNode = CSceneGraph::GetInstance()->AddNode(baseCube);
-	//GenericEntity* childCube = Create::Asset("cube", Vector3(0.0f, 0.0f, 0.0f));
-	//CSceneNode* childNode = baseNode->AddChild(childCube);
-	//childNode->ApplyTranslate(0.0f, 1.0f, 0.0f);
-	//GenericEntity* grandchildCube = Create::Asset("cubeSG", Vector3(0.0f, 0.0f, 0.0f));
-	//CSceneNode* grandchildNode = childNode->AddChild(grandchildCube);
-	//grandchildNode->ApplyTranslate(0.0f, 0.0f, 1.0f);
+	GenericEntity* baseCube = Create::Asset("tankbody", Vector3(0.0f, -8.0f, 0.0f));
+	CSceneNode* baseNode = CSceneGraph::GetInstance()->AddNode(baseCube);
+	GenericEntity* childCube = Create::Asset("tanktop", Vector3(0.0f, -8.0f, 0.0f));
+	CSceneNode* childNode = baseNode->AddChild(childCube);
+	childNode->ApplyTranslate(0.0f, 0.0f, 0.0f);
 
-	//GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
-	//anotherCube->SetCollider(true);
-	//anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+	GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
+	anotherCube->SetCollider(true);
+	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
 
-	//CUpdateTransformation* baseMtx = new CUpdateTransformation();
-	//baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
-	//baseMtx->SetSteps(-30, 30);
-	//baseNode->SetUpdateTransformation(baseMtx);
+	//Translation
+	CUpdateTransformation* baseMtx = new CUpdateTransformation();
+	baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
+	baseMtx->SetSteps(-30, 30);
+	baseNode->SetUpdateTransformation(baseMtx);
 
-	//grandchildNode->ApplyTranslate(0.0f, 0.0f, 0.01f);
-	//CUpdateTransformation* rotation = new CUpdateTransformation();
-	//rotation->ApplyUpdate(1.0f, 0.0f, 0.0f, 1.0f);
-	//rotation->SetSteps(-120, 60);
-	//grandchildNode->SetUpdateTransformation(rotation);
+  //Rotation
+	CUpdateTransformation* rotation = new CUpdateTransformation();
+	rotation->ApplyUpdate(1.0f, 0.0f, 1.0f, 0.0f);
+	rotation->SetSteps(-120, 60);
+	childNode->SetUpdateTransformation(rotation);
 
 
 	//CSceneNode* anotherNode = theNode->AddChild(anotherCube);
