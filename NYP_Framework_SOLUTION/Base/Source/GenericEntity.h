@@ -18,9 +18,11 @@ public:
 
 	// Set the maxAABB and minAABB
 	void SetAABB(Vector3 maxAABB, Vector3 minAABB);
-
+	void SetDontRender(bool dontrender) { _dontrender = dontrender; }
+	bool GetDontRender() { return _dontrender; }
 private:
 	Mesh* modelMesh;
+	bool _dontrender;
 };
 
 namespace Create
@@ -30,8 +32,8 @@ namespace Create
 		const Vector3& _scale = Vector3(1.0f, 1.0f, 1.0f));
 
 	GenericEntity* Entity(	const std::string& _meshName, 
-							const Vector3& _position, 
-							const Vector3& _scale = Vector3(1.0f, 1.0f, 1.0f));
+							const Vector3& _position,
+							const Vector3& _scale = Vector3(1.0f, 1.0f, 1.0f), bool dontrender = false);
 };
 
 #endif // GENERIC_ENTITY_H

@@ -45,6 +45,7 @@ SceneText::SceneText(SceneManager* _sceneMgr)
 
 SceneText::~SceneText()
 {
+	CSpatialPartition::GetInstance()->RemoveCamera();
 	CSceneGraph::GetInstance()->Destroy();
 }
 
@@ -160,8 +161,28 @@ void SceneText::Init()
 	CSpatialPartition::GetInstance()->Init(100, 100, 10, 10);
 	CSpatialPartition::GetInstance()->SetMesh("GRIDMESH");
 	CSpatialPartition::GetInstance()->SetCamera(&camera);
-	CSpatialPartition::GetInstance()->SetLevelOfDetails(40000.0f, 160000.0f);
+	CSpatialPartition::GetInstance()->SetLevelOfDetails(20000.0f, 25000.0f);
 	EntityManager::GetInstance()->SetSpatialPartition(CSpatialPartition::GetInstance());
+
+	//Bus------------------------------//
+	MeshBuilder::GetInstance()->GenerateOBJ("bus", "OBJ//bus.obj");
+	MeshBuilder::GetInstance()->GetMesh("bus")->textureID = LoadTGA("Image//busuv.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("bus2", "OBJ//bus.obj");
+	MeshBuilder::GetInstance()->GetMesh("bus2")->textureID = LoadTGA("Image//busuv2.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("bus3", "OBJ//bus.obj");
+	MeshBuilder::GetInstance()->GetMesh("bus3")->textureID = LoadTGA("Image//busuv3.tga");
+
+	//Clocktower-------------------//
+	MeshBuilder::GetInstance()->GenerateOBJ("clocktower", "OBJ//clocktower.obj");
+	MeshBuilder::GetInstance()->GetMesh("clocktower")->textureID = LoadTGA("Image//bigben.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("clocktower2", "OBJ//clocktower.obj");
+	MeshBuilder::GetInstance()->GetMesh("clocktower2")->textureID = LoadTGA("Image//bigben2.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("clocktower3", "OBJ//clocktower.obj");
+	MeshBuilder::GetInstance()->GetMesh("clocktower3")->textureID = LoadTGA("Image//bigben3.tga");
 
 	//Tree-------------------------------
 	MeshBuilder::GetInstance()->GenerateOBJ("tree", "OBJ//tree1.obj");
@@ -176,6 +197,8 @@ void SceneText::Init()
 
 	MeshBuilder::GetInstance()->GenerateOBJ("tree4", "OBJ//tree4.obj");
 	MeshBuilder::GetInstance()->GetMesh("tree4")->textureID = LoadTGA("Image//tree2.tga");
+
+
 	//Ai---------------------------------
 	MeshBuilder::GetInstance()->GenerateOBJ("robot", "OBJ//robotbody.obj");
 	MeshBuilder::GetInstance()->GetMesh("robot")->textureID = LoadTGA("Image//enemy.tga");
@@ -369,42 +392,106 @@ void SceneText::ResetScene()
 {
 	QuadTree::GetInstance()->Init(Vector3(1000, 1000, 1000), Vector3());
 	EntityManager::GetInstance()->EmptyList();
-	//Enemy = new CEnemy();
-	//Enemy->Init();
-	//// Create entities into the scene
-	//Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
-	//Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
-	//GenericEntity* aCube = Create::Entity("cube", Vector3(-20.0f, 0.0f, -20.0f));
-	//aCube->SetCollider(true);
-	//aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
-	//aCube->InitLOD("cube", "sphere", "cubeSG");
-	//CSceneNode* theNode = CSceneGraph::GetInstance()->AddNode(aCube);
-	//if (theNode == NULL)
-	//{
-	//	cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
-	//}
+	for (int i = 0; i < 50; ++i)
+	{
+		CEnemy* _Enemy = new CEnemy();
+		_Enemy->Init();
+		float randomx = 500 - Math::RandFloatMinMax(0, 1000);
+		float randomy = 500 - Math::RandFloatMinMax(0, 1000);
+		_Enemy->SetPosition(Vector3(randomx, 0, randomy));
+	}
+	QuadTree::GetInstance()->PrintTree();
 
-	GenericEntity* baseCube = Create::Asset("tankbody", Vector3(0.0f, -8.0f, 0.0f));
-	CSceneNode* baseNode = CSceneGraph::GetInstance()->AddNode(baseCube);
-	GenericEntity* childCube = Create::Asset("tanktop", Vector3(0.0f, -8.0f, 0.0f));
-	CSceneNode* childNode = baseNode->AddChild(childCube);
-	childNode->ApplyTranslate(0.0f, 0.0f, 0.0f);
+	// Create entities into the scene
+	Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
+	Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
 
-	GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
+	GenericEntity* aCube = Create::Entity("clocktower", Vector3(50.0f, -10.0f, -20.0f));
+	aCube->SetCollider(true);
+	aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+	aCube->InitLOD("clocktower", "clocktower2", "clocktower3");
+	CSceneNode* theNode = CSceneGraph::GetInstance()->AddNode(aCube);
+	if (theNode == NULL)
+	{
+		cout << "EntityManager::Add Entity : Unable to add to scene graph" << endl;
+	}
+	/*GenericEntity* anotherCube = Create::Entity("cube", Vector3(-20.0f, 1.1f, -20.0f));
 	anotherCube->SetCollider(true);
-	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));*/
+	
 
-	//Translation
+
+	//----Tanks
+	GenericEntity* tankBody = Create::Entity("tankbody", Vector3(0.0f, -6.0f, 0.0f), Vector3(1, 1, 1), true);
+	CSceneNode* tankNode1 = CSceneGraph::GetInstance()->AddNode(tankBody);
+	tankBody->SetCollider(true);
+	tankBody->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+	tankBody->InitLOD("tankbody", "tankbody2", "tankbody3");
+	GenericEntity* tankTop = Create::Entity("tanktop", Vector3(0.0f, -5.9f, 0.0f),Vector3(1,1,1),true);
+	CSceneNode* tankNode2 = tankNode1->AddChild(tankTop);
+	tankTop->SetCollider(true);
+	tankTop->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+	tankNode2->ApplyTranslate(0.0f, 0.0f, 0.0f);
+
+	//
+
+	////Translation
 	CUpdateTransformation* baseMtx = new CUpdateTransformation();
-	baseMtx->ApplyUpdate(0.01f, 0.0f, 0.0f);
-	baseMtx->SetSteps(-30, 30);
-	baseNode->SetUpdateTransformation(baseMtx);
+	baseMtx->ApplyUpdate(0.5f, 0.0f, 0.0f);
+	baseMtx->SetSteps(-90, 90);
+	tankNode1->SetUpdateTransformation(baseMtx);
 
-  //Rotation
+ // //Rotation
 	CUpdateTransformation* rotation = new CUpdateTransformation();
 	rotation->ApplyUpdate(1.0f, 0.0f, 1.0f, 0.0f);
 	rotation->SetSteps(-120, 60);
-	childNode->SetUpdateTransformation(rotation);
+	tankNode2->SetUpdateTransformation(rotation);
+
+
+	//Resize
+	
+
+	//End of tanks ------------------------------------
+
+	//Tree------------
+	
+	for (int i = 0; i < 10; i++)
+	{
+		float randomx = 500 - Math::RandFloatMinMax(0, 500);
+		float randomy = 500 - Math::RandFloatMinMax(0, 500);
+
+		GenericEntity* treeBody = Create::Entity("tree3", Vector3(randomx, -8.0f, randomy), Vector3(5, 5, 5));
+		//CSceneNode* treeNode1 = CSceneGraph::GetInstance()->AddNode(treeBody);
+		treeBody->SetCollider(true);
+		treeBody->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+		treeBody->InitLOD("tree2", "tree3", "tree4");
+
+
+		GenericEntity* treeTop = Create::Entity("tree", Vector3(randomx, -9.0f, randomy), Vector3(5, 5, 5));
+		//CSceneNode* treeNode1 = CSceneGraph::GetInstance()->AddNode(treeBody);
+		treeTop->SetCollider(true);
+		treeTop->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+		treeTop->InitLOD("tree", "tree", "tree");
+	}
+
+	for (int i = 20; i < 50; i++)
+	{
+		float randomx = 1.0f + (i* rand() % 1000 - 500.0f);
+		float randomy = 1.0f + (i* rand() % 1000 - 500.0f);
+		GenericEntity* enemy1 = Create::Entity("robot", Vector3(randomx, -9.0f, randomy));
+		enemy1->SetScale(Vector3(2, 2, 2));
+		enemy1->SetCollider(true);
+		enemy1->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+		enemy1->InitLOD("robot", "robot", "robot");
+
+	}
+
+	//GenericEntity* treeTop = Create::Entity("tree2", Vector3(20.0f, -8.0f, 0.0f)  ,Vector3(5, 5, 5));
+	//CSceneNode* treeNode2 = treeNode1->AddChild(treeTop);
+	//treeNode2->ApplyTranslate(0.0f, 0.0f, 0.0f);
+	
+	//Robot
+
 
 
 	//CSceneNode* anotherNode = theNode->AddChild(anotherCube);
@@ -437,4 +524,6 @@ void SceneText::ResetScene()
 		textObj[i] = Create::Text2DObject("text", Vector3(-halfWindowWidth, -halfWindowHeight + fontSize*i + halfFontSize, 0.0f), "", Vector3(fontSize, fontSize, fontSize), Color(0.0f, 1.0f, 0.0f));
 	}
 	textObj[0]->SetText("HELLO WORLD");
+	QuadTree::GetInstance()->PrintTree();
+
 }

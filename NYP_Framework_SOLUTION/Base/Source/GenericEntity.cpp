@@ -5,7 +5,7 @@
 #include "RenderHelper.h"
 
 GenericEntity::GenericEntity(Mesh* _modelMesh)
-	: modelMesh(_modelMesh)
+	: modelMesh(_modelMesh),_dontrender(false)
 {
 }
 
@@ -58,7 +58,8 @@ GenericEntity * Create::Asset(const std::string & _meshName, const Vector3 & _po
 
 GenericEntity* Create::Entity(	const std::string& _meshName,
 								const Vector3& _position,
-								const Vector3& _scale)
+								const Vector3& _scale,
+								bool dontrender)
 {
 	Mesh* modelMesh = MeshBuilder::GetInstance()->GetMesh(_meshName);
 	if (modelMesh == nullptr)
@@ -69,7 +70,7 @@ GenericEntity* Create::Entity(	const std::string& _meshName,
 	result->SetScale(_scale);
 	result->SetCollider(true);
     result->SetAABB(_scale * 0.5f, -_scale*0.5f);
-
+	result->SetDontRender(dontrender);
 	EntityManager::GetInstance()->AddEntity(result, true);
 	return result;
 }

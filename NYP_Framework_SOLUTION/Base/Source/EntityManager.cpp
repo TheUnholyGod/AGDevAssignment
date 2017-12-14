@@ -56,7 +56,17 @@ void EntityManager::Render()
 	end = entityList.end();
 	for (it = entityList.begin(); it != end; ++it)
 	{
-		(*it)->Render();
+		GenericEntity* ge = dynamic_cast<GenericEntity*>(*it);
+
+		if (!ge)
+		{
+			(*it)->Render();
+		}
+		else if(!(ge->GetDontRender()))
+		{
+			(*it)->Render();
+
+		}
 	}
 	QuadTree::GetInstance()->Render();
 
@@ -64,8 +74,8 @@ void EntityManager::Render()
 	CSceneGraph::GetInstance()->Render();
 
 	// Render the Spatial Partition
-	/*if (theSpatialPartition)
-		theSpatialPartition->Render();*/
+	//if (theSpatialPartition)
+	//	theSpatialPartition->Render();
 }
 
 // Render the UI entities
@@ -87,8 +97,9 @@ void EntityManager::AddEntity(EntityBase* _newEntity, bool bAddToSpatialPartitio
 	if(_newEntity->HasCollider())
 		QuadTree::GetInstance()->AddEntity(_newEntity);
 	// Add to the Spatial Partition
-	//if (theSpatialPartition && bAddToSpatialPartition)
-	//	theSpatialPartition->Add(_newEntity);
+
+if (theSpatialPartition && bAddToSpatialPartition)
+		theSpatialPartition->Add(_newEntity);
 }
 
 // Remove an entity from this EntityManager

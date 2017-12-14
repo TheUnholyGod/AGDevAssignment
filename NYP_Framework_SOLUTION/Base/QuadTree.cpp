@@ -9,6 +9,7 @@
 #include "Collider\Collider.h"
 #include "Source\Projectile\Laser.h"
 #include "Source/EntityManager.h"
+#include "Source/SceneGraph/SceneGraph.h"
 
 
 QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3),m_depth(0),m_entitylist()
@@ -202,7 +203,6 @@ void QTNode::Render()
 
 	for (auto &i : this->m_entitylist)
 	{
-		i->Render();
 		modelStack.PushMatrix();
 		RenderHelper::DrawLine(Vector3(this->m_pos.x, m_pos.y - 5, m_pos.z), i->GetPosition());
 		modelStack.PopMatrix();
@@ -269,8 +269,14 @@ void QTNode::CheckForCollision(void)
 						thatMinAABB, thatMaxAABB,
 						hitPosition) == true)
 					{
-						(*colliderThis)->SetIsDone(true);
-						(*colliderThat)->SetIsDone(true);
+						if (dynamic_cast<CProjectile*>(*colliderThis) || dynamic_cast<CProjectile*>(*colliderThat)) 
+						{
+							(*colliderThis)->SetIsDone(true);
+							(*colliderThat)->SetIsDone(true);
+							CSceneGraph::GetInstance()->DeleteNode((*colliderThis));
+							CSceneGraph::GetInstance()->DeleteNode((*colliderThat));
+						}
+
 					}
 				}
 			}
@@ -296,8 +302,13 @@ void QTNode::CheckForCollision(void)
 					{
 						if (Collision::CheckAABBCollision(thisEntity, thatEntity))
 						{
-							thisEntity->SetIsDone(true);
-							thatEntity->SetIsDone(true);
+							if (dynamic_cast<CProjectile*>(*colliderThis) || dynamic_cast<CProjectile*>(*colliderThat))
+							{
+								thisEntity->SetIsDone(true);
+								thatEntity->SetIsDone(true);
+								CSceneGraph::GetInstance()->DeleteNode((*colliderThis));
+								CSceneGraph::GetInstance()->DeleteNode((*colliderThat));
+							}
 						}
 					}
 				}

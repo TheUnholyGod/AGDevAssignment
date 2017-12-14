@@ -166,10 +166,10 @@ void CEnemy::Update(double dt)
 	Constrain();
 
 	//// Update the target
-	//if (position.z > 400.0f)
-	//	target.z = position.z * -1;
-	//else if (position.z < -400.0f)
-	//	target.z = position.z * -1;
+	if (position.z > 400.0f)
+		target.z = position.z * -1;
+	else if (position.z < -400.0f)
+		target.z = position.z * -1;
 }
 
 // Constrain the position within the borders
