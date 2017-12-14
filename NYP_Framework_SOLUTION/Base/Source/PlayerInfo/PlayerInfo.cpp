@@ -509,9 +509,11 @@ void CPlayerInfo::MoveForward(double dt)
             {
                 if (Collision::CheckAABBCollision(this, *collider))
                 {
-                    std::cout << "COLLIDE" << std::endl;
-                    move = false;
-                    break;
+                    if (Collision::CheckOverlap((*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMinAABB(), (*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMaxAABB(), position + viewVector.Normalized() * (float)m_dSpeed * (float)dt, position + viewVector.Normalized() * (float)m_dSpeed * (float)dt))
+                    {
+                        move = false;
+                        break;
+                    }
                 }
             }
         }
@@ -542,9 +544,11 @@ void CPlayerInfo::MoveBackward(double dt)
             {
                 if (Collision::CheckAABBCollision(this, *collider))
                 {
-                    std::cout << "COLLIDE" << std::endl;
-                    move = false;
-                    break;
+                    if (Collision::CheckOverlap((*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMinAABB(), (*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMaxAABB(), position - viewVector.Normalized() * (float)m_dSpeed * (float)dt, position - viewVector.Normalized() * (float)m_dSpeed * (float)dt))
+                    {
+                        move = false;
+                        break;
+                    }
                 }
             }
         }
@@ -563,9 +567,9 @@ void CPlayerInfo::MoveLeft(double dt)
 {
 	Vector3 viewVector = target - position;
 	Vector3 rightUV;
-	//rightUV = (viewVector.Normalized()).Cross(up);
-	//rightUV.y = 0;
-	//rightUV.Normalize();
+	rightUV = (viewVector.Normalized()).Cross(up);
+	rightUV.y = 0;
+	rightUV.Normalize();
     std::list<EntityBase*>::iterator collider;
     bool move1 = true;
     for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
@@ -576,9 +580,11 @@ void CPlayerInfo::MoveLeft(double dt)
             {
                 if (Collision::CheckAABBCollision(this, *collider))
                 {
-                    std::cout << "COLLIDE" << std::endl;
-                    move1 = false;
-                    break;
+                    if (Collision::CheckOverlap((*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMinAABB(), (*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMaxAABB(), position - rightUV * (float)m_dSpeed * (float)dt, position - rightUV * (float)m_dSpeed * (float)dt))
+                    {
+                        move1 = false;
+                        break;
+                    }
                 }
             }
         }
@@ -586,14 +592,6 @@ void CPlayerInfo::MoveLeft(double dt)
 
     if (move1)
     {
-        //position -= viewVector.Normalized() * (float)m_dSpeed * (float)dt;
-        //Constrain();
-        //// Update the target
-        //target = position + viewVector;
-
-		rightUV = (viewVector.Normalized()).Cross(up);
-		rightUV.y = 0;
-		rightUV.Normalize();
 		position -= rightUV * (float)m_dSpeed * (float)dt;
 		target = position + viewVector;
     }
@@ -603,9 +601,9 @@ void CPlayerInfo::MoveRight(double dt)
 {
 	Vector3 viewVector = target - position;
 	Vector3 rightUV;
-	//rightUV = (viewVector.Normalized()).Cross(up);
-	//rightUV.y = 0;
-	//rightUV.Normalize();
+	rightUV = (viewVector.Normalized()).Cross(up);
+	rightUV.y = 0;
+	rightUV.Normalize();
     std::list<EntityBase*>::iterator collider;
     bool move1 = true;
     for (collider = colliderlist.begin(); collider != colliderlist.end(); ++collider)
@@ -616,9 +614,11 @@ void CPlayerInfo::MoveRight(double dt)
             {
                 if (Collision::CheckAABBCollision(this, *collider))
                 {
-                    std::cout << "COLLIDE" << std::endl;
-                    move1 = false;
-                    break;
+                    if (Collision::CheckOverlap((*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMinAABB(), (*collider)->GetPosition() + dynamic_cast<CCollider*>(*collider)->GetMaxAABB(), position + rightUV * (float)m_dSpeed * (float)dt, position + rightUV * (float)m_dSpeed * (float)dt))
+                    {
+                        move1 = false;
+                        break;
+                    }
                 }
             }
         }
@@ -630,10 +630,6 @@ void CPlayerInfo::MoveRight(double dt)
         //Constrain();
         //// Update the target
         //target = position + viewVector;
-
-		rightUV = (viewVector.Normalized()).Cross(up);
-		rightUV.y = 0;
-		rightUV.Normalize();
 		position += rightUV * (float)m_dSpeed * (float)dt;
 		target = position + viewVector;
     }
