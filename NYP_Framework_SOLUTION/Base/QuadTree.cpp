@@ -11,7 +11,7 @@
 #include "Source/EntityManager.h"
 
 
-QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3),m_depth(0)
+QTNode::QTNode(QTNode * _parent, Vector3 _pos, Vector3 _size) : m_parent(_parent), m_pos(_pos), m_size(_size), m_NodeSplit(false),m_maxentitycount(3),m_depth(0),m_entitylist()
 {
 	for (int i = 0; i < 4; ++i)
 	{
@@ -66,7 +66,7 @@ std::list<EntityBase*> QTNode::GetEntityList(Vector3 _pos)
             _pos);
         if (c)
         {
-            return m_children[0]->GetEntityList(_pos);
+            return m_children[i]->GetEntityList(_pos);
         }
     }
 }
