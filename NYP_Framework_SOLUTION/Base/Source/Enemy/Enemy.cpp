@@ -81,7 +81,7 @@ void CEnemy::Init(float x, float y)
 	m_dSpeed = 10.0;
 
 	// Initialise the LOD meshes
-	InitLOD("cube", "sphere", "cubeSG");
+	InitLOD("robot", "robot2", "robot3");
 
 	// Initialise the Collider
 	this->SetCollider(true);

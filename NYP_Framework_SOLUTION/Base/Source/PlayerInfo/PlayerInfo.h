@@ -74,11 +74,11 @@ public:
 
 	//Assignment getters/ setters
 
-	int GetPoints();
-	void SetPoints();
+	int getcurrenthighscore();
+	void setcurrenthighscore(int);
+	
 
-	int GetEnemyPts();
-	int SetEnemyPts();
+	
 
 
 	// Get position
@@ -140,6 +140,6 @@ private:
 
 
 	//Assignment
-	int enemykilled;
-	int points;
+
+	int highscore;
 };

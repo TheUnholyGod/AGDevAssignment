@@ -30,8 +30,8 @@ CPlayerInfo::CPlayerInfo(void)
 	, m_pTerrain(NULL)
 	, primaryWeapon(NULL)
 	, secondaryWeapon(NULL)
-	, points(0)
-	, enemykilled(0)
+	, highscore(0)
+	
 {
 }
 
@@ -633,4 +633,14 @@ void CPlayerInfo::MoveRight(double dt)
 		position += rightUV * (float)m_dSpeed * (float)dt;
 		target = position + viewVector;
     }
+}
+
+int CPlayerInfo::getcurrenthighscore()
+{
+	return highscore;
+}
+
+void CPlayerInfo::setcurrenthighscore(int highscore)
+{
+	this->highscore = highscore;
 }

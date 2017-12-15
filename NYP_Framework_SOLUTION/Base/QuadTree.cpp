@@ -308,6 +308,7 @@ void QTNode::CheckForCollision(void)
 								thatEntity->SetIsDone(true);
 								CSceneGraph::GetInstance()->DeleteNode((*colliderThis));
 								CSceneGraph::GetInstance()->DeleteNode((*colliderThat));
+								
 							}
 						}
 					}

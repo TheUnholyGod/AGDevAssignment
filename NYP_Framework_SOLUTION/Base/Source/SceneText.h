@@ -42,7 +42,7 @@ private:
 	Keyboard* m_kb;
 	Mouse* m_mouse;
 	GenericEntity* theCube;
-	CEnemy *Enemy;
+	CEnemy *_Enemy;
 	float m_inputtimer;
 	static SceneText* sInstance; // The pointer to the object that gets registered
 };

@@ -164,6 +164,33 @@ void SceneText::Init()
 	CSpatialPartition::GetInstance()->SetLevelOfDetails(20000.0f, 25000.0f);
 	EntityManager::GetInstance()->SetSpatialPartition(CSpatialPartition::GetInstance());
 
+	//Log------------------------------//
+	MeshBuilder::GetInstance()->GenerateOBJ("log", "OBJ//log.obj");
+	MeshBuilder::GetInstance()->GetMesh("log")->textureID = LoadTGA("Image//log.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("log2", "OBJ//log.obj");
+	MeshBuilder::GetInstance()->GetMesh("log2")->textureID = LoadTGA("Image//log2.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("log3", "OBJ//log.obj");
+	MeshBuilder::GetInstance()->GetMesh("log")->textureID = LoadTGA("Image//log3.tga");
+
+	//House---------------------------//
+	MeshBuilder::GetInstance()->GenerateOBJ("left", "OBJ//leftside.obj");
+	MeshBuilder::GetInstance()->GetMesh("left")->textureID = LoadTGA("Image//farmhouse.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("right", "OBJ//rightside.obj");
+	MeshBuilder::GetInstance()->GetMesh("right")->textureID = LoadTGA("Image//farmhouse.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("floor", "OBJ//plank.obj");
+	MeshBuilder::GetInstance()->GetMesh("floor")->textureID = LoadTGA("Image//farmhouse.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("roof", "OBJ//rooftop.obj");
+	MeshBuilder::GetInstance()->GetMesh("roof")->textureID = LoadTGA("Image//farmhouse.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("entrance", "OBJ//roofentrance.obj");
+	MeshBuilder::GetInstance()->GetMesh("entrance")->textureID = LoadTGA("Image//farmhouse.tga");
+
+
 	//Bus------------------------------//
 	MeshBuilder::GetInstance()->GenerateOBJ("bus", "OBJ//bus.obj");
 	MeshBuilder::GetInstance()->GetMesh("bus")->textureID = LoadTGA("Image//busuv.tga");
@@ -200,11 +227,16 @@ void SceneText::Init()
 
 
 	//Ai---------------------------------
-	MeshBuilder::GetInstance()->GenerateOBJ("robot", "OBJ//robotbody.obj");
+	MeshBuilder::GetInstance()->GenerateOBJ("robot", "OBJ//robotfull.obj");
 	MeshBuilder::GetInstance()->GetMesh("robot")->textureID = LoadTGA("Image//enemy.tga");
 
-	MeshBuilder::GetInstance()->GenerateOBJ("robothands", "OBJ//robothands.obj");
-	MeshBuilder::GetInstance()->GetMesh("robothands")->textureID = LoadTGA("Image//enemy.tga");
+	MeshBuilder::GetInstance()->GenerateOBJ("robot2", "OBJ//robotfull.obj");
+	MeshBuilder::GetInstance()->GetMesh("robot2")->textureID = LoadTGA("Image//enemy2.tga");
+
+	MeshBuilder::GetInstance()->GenerateOBJ("robot3", "OBJ//robotfull.obj");
+	MeshBuilder::GetInstance()->GetMesh("robot3")->textureID = LoadTGA("Image//enemy3.tga");
+	//MeshBuilder::GetInstance()->GenerateOBJ("robothands", "OBJ//robothands.obj");
+	//MeshBuilder::GetInstance()->GetMesh("robothands")->textureID = LoadTGA("Image//enemy.tga");
 
 	//Tank---------------------------------
 	MeshBuilder::GetInstance()->GenerateOBJ("tanktop", "OBJ//tanktop.obj");
@@ -236,6 +268,17 @@ void SceneText::Init()
 
 	m_mouse = new Mouse();
 	m_mouse->Create(playerInfo);
+
+	/*for (int i = 0; i < 10; i++)
+	{
+		float x = 1.0f + (i * rand() % 1000 - 500.0f);
+		float y = 1.0f + (i * rand() % 1000 - 500.0f);
+		_Enemy->SetRandomSeed(rand());
+		_Enemy->Init(x, y);
+		_Enemy->SetTerrain(groundEntity);
+		_Enemy->SetTarget(_Enemy->GenerateTarget());
+		_Enemy = NULL;
+	}*/
 
 	m_inputtimer = 0;
 	this->ResetScene();
@@ -278,6 +321,8 @@ void SceneText::Update(double dt)
 	{
 		lights[0]->type = Light::LIGHT_SPOT;
 	}
+
+	cout << playerInfo->getcurrenthighscore() << endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		lights[0]->position.z -= (float)(10.f * dt);
@@ -392,24 +437,32 @@ void SceneText::ResetScene()
 {
 	QuadTree::GetInstance()->Init(Vector3(1000, 1000, 1000), Vector3());
 	EntityManager::GetInstance()->EmptyList();
-	for (int i = 0; i < 50; ++i)
+	/*for (int i = 0; i < 50; ++i)
 	{
 		CEnemy* _Enemy = new CEnemy();
 		_Enemy->Init();
 		float randomx = 500 - Math::RandFloatMinMax(0, 1000);
 		float randomy = 500 - Math::RandFloatMinMax(0, 1000);
 		_Enemy->SetPosition(Vector3(randomx, 0, randomy));
-	}
+	}*/
+
+	
 	QuadTree::GetInstance()->PrintTree();
 
 	// Create entities into the scene
 	Create::Entity("reference", Vector3(0.0f, 0.0f, 0.0f)); // Reference
 	Create::Entity("lightball", Vector3(lights[0]->position.x, lights[0]->position.y, lights[0]->position.z)); // Lightball
 
-	GenericEntity* aCube = Create::Entity("clocktower", Vector3(50.0f, -10.0f, -20.0f));
+	GenericEntity* aCube = Create::Entity("clocktower", Vector3(-150.0f, -10.0f, -200.0f));
 	aCube->SetCollider(true);
 	aCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
 	aCube->InitLOD("clocktower", "clocktower2", "clocktower3");
+
+
+	GenericEntity* aCube2 = Create::Entity("clocktower", Vector3(-200.0f, -10.0f, -200.0f));
+	aCube2->SetCollider(true);
+	aCube2->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));
+	aCube2->InitLOD("clocktower", "clocktower2", "clocktower3");
 	CSceneNode* theNode = CSceneGraph::GetInstance()->AddNode(aCube);
 	if (theNode == NULL)
 	{
@@ -419,28 +472,53 @@ void SceneText::ResetScene()
 	anotherCube->SetCollider(true);
 	anotherCube->SetAABB(Vector3(0.5f, 0.5f, 0.5f), Vector3(-0.5f, -0.5f, -0.5f));*/
 	
+	for (int i = 30; i < 50; i++)
+	{
+		float randomx = 500 - Math::RandFloatMinMax(0, 500);
+		float randomy = 500 - Math::RandFloatMinMax(0, 500);
+		//House
+		GenericEntity* roofentrance = Create::Entity("entrance", Vector3(-randomx, -6.0f, randomy), Vector3(1, 1, 1), true);
+		CSceneNode* houseNode1 = CSceneGraph::GetInstance()->AddNode(roofentrance);
+		roofentrance->SetCollider(true);
+		roofentrance->SetAABB(Vector3(5, 10, 8), Vector3(-5, 0, -5));
+		//roofentrance->InitLOD("entrance", "entrance", "entrance");
 
+		GenericEntity* left = Create::Entity("left", Vector3(-randomx, -5.0f, randomy+ 2.0f), Vector3(1, 1, 1), true);
+		left->SetCollider(true);
+		left->SetAABB(Vector3(10, 10, 51), Vector3(-5, -5, -5));
+		CSceneNode* houseNode2 = houseNode1->AddChild(left);
+		//houseNode2->ApplyTranslate(0.0f, 0.0f, 0.0f);
 
+		GenericEntity* right = Create::Entity("right", Vector3(-randomx -2.0f, -5.0f, randomy+2.0f), Vector3(1, 1, 1), true);
+		right->SetCollider(true);
+		right->SetAABB(Vector3(10, 10, 51), Vector3(-5, -5, -5));
+		CSceneNode* houseNode3 = houseNode1->AddChild(right);
+		//houseNode3->ApplyTranslate(0.0f, 0.0f, 0.0f);
+
+		GenericEntity* floor = Create::Entity("floor", Vector3(-randomx, -5.0f, randomy), Vector3(1, 1, 1), true);
+		CSceneNode* houseNode4 = houseNode1->AddChild(floor);
+		floor->SetCollider(true);
+		floor->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+		//houseNode4->ApplyTranslate(0.0f, 0.0f, 0.0f);
+
+		GenericEntity* roof = Create::Entity("roof", Vector3(-randomx, -5.0f, randomy), Vector3(1, 1, 1), true);
+		CSceneNode* houseNode5 = houseNode1->AddChild(roof);
+		roof->SetCollider(true);
+		roof->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
+		//houseNode5->ApplyTranslate(0.0f, 0.0f, 0.0f);
+	}
 	//----Tanks
+
 	GenericEntity* tankBody = Create::Entity("tankbody", Vector3(0.0f, -6.0f, 0.0f), Vector3(1, 1, 1), true);
 	CSceneNode* tankNode1 = CSceneGraph::GetInstance()->AddNode(tankBody);
 	tankBody->SetCollider(true);
 	tankBody->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
 	tankBody->InitLOD("tankbody", "tankbody2", "tankbody3");
-	GenericEntity* tankTop = Create::Entity("tanktop", Vector3(0.0f, -5.9f, 0.0f),Vector3(1,1,1),true);
+	GenericEntity* tankTop = Create::Entity("tanktop", Vector3(0.0f, -5.0f, 0.0f),Vector3(1,1,1),true);
 	CSceneNode* tankNode2 = tankNode1->AddChild(tankTop);
 	tankTop->SetCollider(true);
 	tankTop->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
 	tankNode2->ApplyTranslate(0.0f, 0.0f, 0.0f);
-
-	//
-
-	////Translation
-	CUpdateTransformation* baseMtx = new CUpdateTransformation();
-	baseMtx->ApplyUpdate(0.5f, 0.0f, 0.0f);
-	baseMtx->SetSteps(-90, 90);
-	tankNode1->SetUpdateTransformation(baseMtx);
-
  // //Rotation
 	CUpdateTransformation* rotation = new CUpdateTransformation();
 	rotation->ApplyUpdate(1.0f, 0.0f, 1.0f, 0.0f);
@@ -455,10 +533,10 @@ void SceneText::ResetScene()
 
 	//Tree------------
 	
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 50; i++)
 	{
-		float randomx = 500 - Math::RandFloatMinMax(0, 500);
-		float randomy = 500 - Math::RandFloatMinMax(0, 500);
+		float randomx = 500 - Math::RandFloatMinMax(0, 485);
+		float randomy = 500 - Math::RandFloatMinMax(0, 485);
 
 		GenericEntity* treeBody = Create::Entity("tree3", Vector3(randomx, -8.0f, randomy), Vector3(5, 5, 5));
 		//CSceneNode* treeNode1 = CSceneGraph::GetInstance()->AddNode(treeBody);
@@ -479,10 +557,10 @@ void SceneText::ResetScene()
 		float randomx = 1.0f + (i* rand() % 1000 - 500.0f);
 		float randomy = 1.0f + (i* rand() % 1000 - 500.0f);
 		GenericEntity* enemy1 = Create::Entity("robot", Vector3(randomx, -9.0f, randomy));
-		enemy1->SetScale(Vector3(2, 2, 2));
+		enemy1->SetScale(Vector3(5, 5, 5));
 		enemy1->SetCollider(true);
 		enemy1->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
-		enemy1->InitLOD("robot", "robot", "robot");
+		enemy1->InitLOD("robot", "robot2", "robot3");
 
 	}
 
@@ -523,7 +601,7 @@ void SceneText::ResetScene()
 	{
 		textObj[i] = Create::Text2DObject("text", Vector3(-halfWindowWidth, -halfWindowHeight + fontSize*i + halfFontSize, 0.0f), "", Vector3(fontSize, fontSize, fontSize), Color(0.0f, 1.0f, 0.0f));
 	}
-	textObj[0]->SetText("HELLO WORLD");
+	textObj[0]->SetText("HEllo world");
 	QuadTree::GetInstance()->PrintTree();
 
 }
