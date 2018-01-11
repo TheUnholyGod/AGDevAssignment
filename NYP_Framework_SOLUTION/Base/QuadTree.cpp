@@ -308,6 +308,7 @@ void QTNode::CheckForCollision(void)
 								thatEntity->SetIsDone(true);
 								CSceneGraph::GetInstance()->DeleteNode((*colliderThis));
 								CSceneGraph::GetInstance()->DeleteNode((*colliderThat));
+								
 							}
 						}
 					}
@@ -365,7 +366,7 @@ void QTNode::MergeNode()
 
 std::vector<Vector3> QuadTree::m_dir;
 
-QuadTree::QuadTree(Vector3 _size, Vector3 _pos)
+QuadTree::QuadTree(Vector3 _size, Vector3 _pos):m_render(true)
 {
 	m_dir.push_back(Vector3(1, 1, 1));
 	m_dir.push_back(Vector3(-1, 1, 1));
@@ -396,6 +397,8 @@ void QuadTree::Update(double _dt)
 
 void QuadTree::Render()
 {
+	if (!m_render)
+		return;
 	m_root->Render();
 }
 
@@ -429,4 +432,9 @@ void QuadTree::RefactorThis(EntityBase * _entity)
 std::list<EntityBase*> QuadTree::GetEntityList(Vector3 _pos)
 {
     return m_root->GetEntityList(_pos);
+}
+
+void QuadTree::ToggleRender()
+{
+	m_render = !m_render;
 }
