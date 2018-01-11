@@ -12,6 +12,7 @@ class DebugTool : public Singleton<DebugTool>
 private:
 	std::map<char, std::function<void()>> m_keybindings;
 public:
+	//params (key, lambda function []() {***enter funtionalitiy here***})//
 	template<typename Lambda>
 	void BindKey(char _key, Lambda&& func)
 	{
