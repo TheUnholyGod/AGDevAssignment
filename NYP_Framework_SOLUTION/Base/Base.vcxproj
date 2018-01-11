@@ -14,6 +14,7 @@
     <ClCompile Include="CollisionCheckFunctions.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\DebugTool.cpp" />
     <ClCompile Include="Source\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\EntityManager.cpp" />
     <ClCompile Include="Source\FPSCamera.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="CollisionCheckFunctions.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Source\Application.h" />
+    <ClInclude Include="Source\DebugTool.h" />
     <ClInclude Include="Source\Enemy\Enemy.h" />
     <ClInclude Include="Source\EntityManager.h" />
     <ClInclude Include="Source\FPSCamera.h" />

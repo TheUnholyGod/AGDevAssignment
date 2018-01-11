@@ -30,6 +30,7 @@
 #include "Enemy\Enemy.h" 
 #include "../QuadTree.h"
 #include <iostream>
+#include "DebugTool.h"
 using namespace std;
 
 SceneText* SceneText::sInstance = new SceneText(SceneManager::GetInstance());
@@ -282,6 +283,7 @@ void SceneText::Init()
 
 	m_inputtimer = 0;
 	this->ResetScene();
+	DebugTool::GetInstance()->BindKey('0', []() { QuadTree::GetInstance()->ToggleRender(); });
 }
 
 void SceneText::Update(double dt)
@@ -298,7 +300,7 @@ void SceneText::Update(double dt)
 
 	// Update our entities
 	EntityManager::GetInstance()->Update(dt);
-
+	DebugTool::GetInstance()->Update(dt);
 	// THIS WHOLE CHUNK TILL <THERE> CAN REMOVE INTO ENTITIES LOGIC! Or maybe into a scene function to keep the update clean
 	if (KeyboardController::GetInstance()->IsKeyDown('1'))
 		glEnable(GL_CULL_FACE);
@@ -337,33 +339,28 @@ void SceneText::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		lights[0]->position.y += (float)(10.f * dt);
 
+
 	// if the left mouse button was released
 	if (MouseController::GetInstance()->IsButtonReleased(MouseController::LMB))
 	{
-		cout << "Left Mouse Button was released!" << endl;
 	}
 	if (MouseController::GetInstance()->IsButtonReleased(MouseController::RMB))
 	{
 
-		cout << "Right Mouse Button was released!" << endl;
 	}
 	if (MouseController::GetInstance()->IsButtonReleased(MouseController::MMB))
 	{
-		cout << "Middle Mouse Button was released!" << endl;
 	}
 	if (MouseController::GetInstance()->GetMouseScrollStatus(MouseController::SCROLL_TYPE_XOFFSET) != 0.0)
 	{
-		cout << "Mouse Wheel has offset in X-axis of " << MouseController::GetInstance()->GetMouseScrollStatus(MouseController::SCROLL_TYPE_XOFFSET) << endl;
 	}
 	if (MouseController::GetInstance()->GetMouseScrollStatus(MouseController::SCROLL_TYPE_YOFFSET) != 0.0)
 	{
-		cout << "Mouse Wheel has offset in Y-axis of " << MouseController::GetInstance()->GetMouseScrollStatus(MouseController::SCROLL_TYPE_YOFFSET) << endl;
 	}
 	if (KeyboardController::GetInstance()->IsKeyPressed('B'))
 	{
 		this->ResetScene();
 	}
-	// <THERE>
 	if (KeyboardController::GetInstance()->IsKeyReleased('M'))
 	{
 		Create::Entity("cube", CPlayerInfo::GetInstance()->GetPos(),Vector3(10,10,10));
