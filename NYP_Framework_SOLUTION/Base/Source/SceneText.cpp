@@ -324,7 +324,7 @@ void SceneText::Update(double dt)
 		lights[0]->type = Light::LIGHT_SPOT;
 	}
 
-	cout << playerInfo->getcurrenthighscore() << endl;
+	//cout << playerInfo->getcurrenthighscore() << endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		lights[0]->position.z -= (float)(10.f * dt);

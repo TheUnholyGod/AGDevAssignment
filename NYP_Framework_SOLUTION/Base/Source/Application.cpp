@@ -4,6 +4,7 @@
 #include "SceneManager.h"
 #include "GraphicsManager.h"
 
+#include "Lua/LuaInterface.h"
 //Include GLEW
 #include <GL/glew.h>
 
@@ -45,6 +46,8 @@ bool Application::IsKeyPressed(unsigned short key)
 }
 
 Application::Application()
+	:m_window_height(480)
+	,m_window_width(640)
 {
 }
 
@@ -54,6 +57,15 @@ Application::~Application()
 
 void Application::Init()
 {
+	CLuaInterface::GetInstance()->Init();
+
+	m_window_width = CLuaInterface::GetInstance()->getIntValue("width");
+	m_window_height = CLuaInterface::GetInstance()->getIntValue("height");
+	CLuaInterface::GetInstance()->Run();
+	CLuaInterface::GetInstance()->saveFloatValue("Player1", 888.10, true);
+	CLuaInterface::GetInstance()->saveIntValue("Player2", 100);
+
+
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
 
