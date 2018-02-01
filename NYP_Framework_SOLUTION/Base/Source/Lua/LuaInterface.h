@@ -19,6 +19,9 @@ protected:
     std::vector<IFunction*> m_functions;
 
 public:
+    // Pointer to the Lua State
+    lua_State *theLuaState;
+
 	static CLuaInterface *GetInstance()
 	{
 		if (!s_instance)
@@ -59,34 +62,89 @@ public:
 	// Save a float value through the Lua Interface Class
 	void saveFloatValue(const char* varName, const float value, const bool bOverwrite = NULL);
 
-    template<typename ReturnType, typename... Variables>
-    bool LoadFunction(const char* fileName, const char* funcName)
+    template<typename ReturnType>
+    struct FunctionLoader
     {
-        if (luaL_loadfile(theLuaState, fileName))
+        bool LoadFunction(const char* fileName, const char* funcName)
         {
-            return 0;
-        }
-        m_functions.push_back(new FunctionWrapper<std::vector<ReturnType>(Variables...)>(
-            [this, funcName](Variables... _args) -> std::vector<ReturnType>
-        {
-            lua_getglobal(theLuaState, funcName);
-            std::tuple<Variables...> params = std::forward_as_tuple(_args...);
-            PushToTop(_args...);
-
-            lua_pcall(theLuaState, (int)sizeof...(Variables), 1, 0);
-
-            ReturnType ret;
-            std::vector<ReturnType> _returnVec;
-            while (lua_gettop(theLuaState))
+            if (luaL_loadfile(s_instance->theLuaState, fileName))
             {
-                _returnVec.push_back(ConvertTop<decltype(ret)>());
-                lua_pop(theLuaState, 1);
+                return 0;
             }
+            s_instance->m_functions.push_back(new FunctionWrapper<std::vector<ReturnType>()>(
+                [this, funcName]() -> std::vector<ReturnType>
+            {
+                lua_getglobal(s_instance->theLuaState, funcName);
 
-            return _returnVec;
+                lua_pcall(s_instance->theLuaState, 0, 1, 0);
+
+                ReturnType ret;
+                std::vector<ReturnType> _returnVec;
+                while (lua_gettop(s_instance->theLuaState))
+                {
+                    _returnVec.push_back(s_instance->ConvertTop<decltype(ret)>());
+                    lua_pop(s_instance->theLuaState, 1);
+                }
+
+                return _returnVec;
+            }
+            ));
         }
-        ));
-    }
+    };
+
+    template<typename ReturnType, typename... Variables>
+    struct FunctionLoader<ReturnType(Variables...)>
+    {
+        bool LoadFunction(const char* fileName, const char* funcName)
+        {
+            if (luaL_loadfile(s_instance->theLuaState, fileName))
+            {
+                return 0;
+            }
+            s_instance->m_functions.push_back(new FunctionWrapper<std::vector<ReturnType>(Variables...)>(
+                [this, funcName](Variables... _args) -> std::vector<ReturnType>
+            {
+                lua_getglobal(s_instance->theLuaState, funcName);
+                std::tuple<Variables...> params = std::forward_as_tuple(_args...);
+                s_instance->PushToTop(_args...);
+
+                lua_pcall(s_instance->theLuaState, (int)sizeof...(Variables), 1, 0);
+
+                ReturnType ret;
+                std::vector<ReturnType> _returnVec;
+                while (lua_gettop(s_instance->theLuaState))
+                {
+                    _returnVec.push_back(s_instance->ConvertTop<decltype(ret)>());
+                    lua_pop(s_instance->theLuaState, 1);
+                }
+
+                return _returnVec;
+            }
+            ));
+        }
+    };
+
+    template<typename... Variables>
+    struct FunctionLoader <void(Variables...)>
+    {
+        bool LoadFunction(const char* fileName, const char* funcName)
+        {
+            if (luaL_loadfile(s_instance->theLuaState, fileName))
+            {
+                return 0;
+            }
+            s_instance->m_functions.push_back(new FunctionWrapper<void(Variables...)>(
+                [this, funcName](Variables... _args)
+            {
+                lua_getglobal(s_instance->theLuaState, funcName);
+                std::tuple<Variables...> params = std::forward_as_tuple(_args...);
+                s_instance->PushToTop(_args...);
+
+                lua_pcall(s_instance->theLuaState, (int)sizeof...(Variables), 1, 0);
+            }
+            ));
+        }
+    };
 
     template<typename T>
     T ConvertTop()
@@ -143,8 +201,7 @@ public:
         lua_pushstring(theLuaState, _arg.c_str());
     }
 
-	// Pointer to the Lua State
-	lua_State *theLuaState;
+
 
 	// Key to move forward
 	char keyFORWARD;
