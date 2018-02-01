@@ -19,3 +19,8 @@ height = 600
 PlayerPos_x = 100
 PlayerPos_z = 200
 keyFORWARD = "Z";
+
+function Add(x,y)
+    print(x+y)
+	return x+y
+end

@@ -55,6 +55,7 @@
     <ClInclude Include="Source\Enemy\Enemy.h" />
     <ClInclude Include="Source\EntityManager.h" />
     <ClInclude Include="Source\FPSCamera.h" />
+    <ClInclude Include="Source\FunctionWrapper.h" />
     <ClInclude Include="Source\GenericEntity.h" />
     <ClInclude Include="Source\Grenade.h" />
     <ClInclude Include="Source\GroundEntity.h" />
@@ -64,6 +65,7 @@
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\LOD\LevelOfDetails.h" />
     <ClInclude Include="Source\Lua\LuaInterface.h" />
+    <ClInclude Include="Source\Manager.h" />
     <ClInclude Include="Source\OBJMesh.h" />
     <ClInclude Include="Source\PlayerInfo\PlayerInfo.h" />
     <ClInclude Include="Source\Projectile\Laser.h" />
