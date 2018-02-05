@@ -18,6 +18,8 @@ protected:
 
     std::vector<IFunction*> m_functions;
 
+    std::vector<IFunction*> m_functionsforlua;
+
 public:
     // Pointer to the Lua State
     lua_State *theLuaState;
@@ -61,6 +63,49 @@ public:
 	void saveIntValue(const char* varName, const int value, const bool bOverwrite = NULL);
 	// Save a float value through the Lua Interface Class
 	void saveFloatValue(const char* varName, const float value, const bool bOverwrite = NULL);
+
+    void RegisterFunction()
+    {
+    }
+    
+    template<typename ReturnType>
+    struct GenerateFunctionForLua
+    {
+        lua_CFunction Generate(FunctionWrapper<ReturnType>* _function)
+        {
+            return [](lua_State* _state) -> int
+            {
+                _function->Invoke();
+            };
+        }
+    };
+
+    template<typename ReturnType, typename... Variables>
+    struct GenerateFunctionForLua<ReturnType(Variables...)>
+    {
+        lua_CFunction Generate(FunctionWrapper<ReturnType(Variables...)>* _function)
+        {
+            std::function<int(lua_State*)>func([&_function](lua_State* _state) -> int
+            {
+                std::tuple<Variables...> functionargs;
+                
+                for (int i = std::tuple_size<decltype(functionargs)>::value; i > 0; --i)
+                {
+                    //std::tuple_element<i, decltype(functionargs)> element;
+                }
+
+                return _function->Invoke(functionargs);
+            }
+            );
+
+            return func.target<int(lua_State*)>();
+        }
+    };
+
+    lua_CFunction RegisterFunction(IFunction* _function)
+    {
+        
+    }
 
     template<typename ReturnType>
     struct FunctionLoader
@@ -145,6 +190,12 @@ public:
             ));
         }
     };
+
+    template<typename T, typename T1, typename... TArgs>
+    T ConvertTop(T _arg, T1 _second, TArgs... _others)
+    {
+        return lua_gettop(theLuaState, -1);
+    }
 
     template<typename T>
     T ConvertTop()

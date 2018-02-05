@@ -6,6 +6,9 @@
 #include <utility>
 #include <string>
 
+template<typename T>
+class Manager;
+
 class IFunction
 {
 private:
@@ -34,6 +37,11 @@ public:
 	{
 		m_function();
 	}
+
+    ret(*ReturnFunction())()
+    {
+        return m_function.target<ret()>();
+    }
 };
 
 template<typename ret, typename... params>
@@ -88,6 +96,17 @@ public:
 	{
 		return m_function(_params...);
 	}
+
+    ret Invoke(std::tuple<params...> _params)
+    {
+        typedef typename std::decay<Parameters>::type ttype;
+        Unpacker<0 == std::tuple_size<ttype>::value, std::tuple_size<ttype>::value>::call(m_function, std::forward<Parameters>(_params));
+    }
+
+    ret(*ReturnFunction())(params...)
+    {
+        return (*m_function.target<ret(*)(params...)>());
+    }
 
 };
 

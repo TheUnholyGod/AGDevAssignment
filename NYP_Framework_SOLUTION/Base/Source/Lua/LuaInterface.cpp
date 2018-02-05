@@ -37,7 +37,14 @@ bool CLuaInterface::Init()
 	}
     FunctionLoader<void(std::string, bool)>().LoadFunction("Image//DM2240.lua", "SaveToLuaFile");
     FunctionLoader<int(int, int)>().LoadFunction("Image//DM2240.lua", "Add");
-   dynamic_cast<FunctionWrapper<void(std::string, bool)>*>(m_functions[0])->Invoke("Bob",true);
+    dynamic_cast<FunctionWrapper<void(std::string, bool)>*>(m_functions[0])->Invoke("Bob",true);
+
+    GenerateFunctionForLua<int(int, int)>().Generate(new FunctionWrapper<int(int, int)>(
+        [](int a, int b) -> int
+    {
+        return a + b;
+    }
+    ));
 
 	return result;
 }
