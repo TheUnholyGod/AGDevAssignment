@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <tuple>
 #include <algorithm>
+#include <typeinfo>
 
 #include "../FunctionWrapper.h"
 
@@ -83,19 +84,21 @@ public:
     template<typename ReturnType, typename... Variables>
     struct GenerateFunctionForLua<ReturnType(Variables...)>
     {
-        lua_CFunction Generate(FunctionWrapper<ReturnType(Variables...)>* _function)
+        lua_CFunction Generate(FunctionWrapper<ReturnType(Variables...)>* _function,int _NoOfReturns)
         {
-            std::function<int(lua_State*)>func([&_function](lua_State* _state) -> int
+           
+            std::function<int(lua_State*)>func(            
+                [&_function, &_NoOfReturns](lua_State* _state) -> int
             {
-                std::tuple<Variables...> functionargs;
-                
-                for (int i = std::tuple_size<decltype(functionargs)>::value; i > 0; --i)
-                {
-                    //std::tuple_element<i, decltype(functionargs)> element;
-                }
+                std::tuple<Variables...> functionvars;
 
-                return _function->Invoke(functionargs);
-            }
+                for (int index = 1; index<std::tuple_size<std::tuple<Variables...>>::value; ++index)
+                {
+                    CLuaInterface::GetInstance()->visit_at(functionvars, index);
+                }
+                _function->Invoke(functionvars);
+                return (_NoOfReturns);
+            };
             );
 
             return func.target<int(lua_State*)>();
@@ -106,6 +109,10 @@ public:
     {
         
     }
+
+    /*
+    ##  Start of FunctionLoader
+    */
 
     template<typename ReturnType>
     struct FunctionLoader
@@ -191,6 +198,14 @@ public:
         }
     };
 
+    /*
+    ##  End of FunctionLoader
+    */
+    
+    /*
+    ##  Start of ConvertToTop
+    */
+
     template<typename T, typename T1, typename... TArgs>
     T ConvertTop(T _arg, T1 _second, TArgs... _others)
     {
@@ -220,6 +235,14 @@ public:
     {
         return lua_tostring(theLuaState, -1);
     }
+
+    /*
+    ##  End of ConvertToTop
+    */
+
+    /*
+    ##  Start of PushToTop
+    */
 
     template<typename T,typename T1,typename... TArgs>
     void PushToTop(T _arg,T1 _second,TArgs... _others)
@@ -252,7 +275,85 @@ public:
         lua_pushstring(theLuaState, _arg.c_str());
     }
 
+    /*
+    ##  End of PushToTop
+    */
 
+    /*
+    ##  Start of ReturnByType
+    */
+
+ /*   template<typename T, typename T1, typename... TArgs>
+    struct ReturnByTypeFull
+    {
+        std::vector<IFunction*> _initializefunc;
+        void ReturnByTypeFunc(int _index)
+        {
+            _initializefunc.push_back(new FunctionWrapper<T(int)>(&ReturnByType<T>,_index));
+            ReturnByTypeFunc<T1, TArgs...>().ReturnByTypeFunc(++_index);
+        }
+    };*/
+
+    template<typename T>
+    T      ReturnByType(int _index)
+    {
+        return ReturnByType<T>(_index);
+    }
+
+    template<>
+    int ReturnByType<int>(int _index)
+    {
+        return lua_tonumber(theLuaState, _index);
+    }
+
+    template<>
+    bool ReturnByType<bool>(int _index)
+    {
+        return lua_toboolean(theLuaState, _index);
+    }
+
+    template<>
+    std::string ReturnByType<std::string>(int _index)
+    {
+        return lua_tostring(theLuaState,_index);
+    }
+
+    /*
+    ##  End of ReturnByType
+    */
+
+    template <size_t I>
+    struct visit_impl
+    {
+        template <typename T>
+        static void visit(T& tup, size_t idx)
+        {
+            if (idx == I - 1) std::get<I - 1>(tup) = (s_instance->ReturnByType<std::tuple_element<I - 1, T>::type>(I - 1));
+            else visit_impl<I - 1>::visit(tup, idx);
+        }
+    };
+
+    template <>
+    struct visit_impl<0>
+    {
+        template <typename T>
+        static void visit(T& tup, size_t idx) 
+        {
+            // assert(false)
+        }
+    };
+
+    template <typename... Ts>
+    void visit_at(std::tuple<Ts...> const& tup, size_t idx)
+    {
+        visit_impl<sizeof...(Ts)>::visit(tup, idx);
+    }
+
+    template <typename... Ts>
+    void visit_at(std::tuple<Ts...>& tup, size_t idx)
+    {
+        visit_impl<sizeof...(Ts)>::visit(tup, idx);
+    }
 
 	// Key to move forward
 	char keyFORWARD;

@@ -44,7 +44,7 @@ bool CLuaInterface::Init()
     {
         return a + b;
     }
-    ));
+    ),0);
 
 	return result;
 }
