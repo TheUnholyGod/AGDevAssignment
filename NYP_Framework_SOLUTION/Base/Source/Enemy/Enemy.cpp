@@ -2,13 +2,11 @@
 #include "../EntityManager.h"
 #include "GraphicsManager.h"
 #include "RenderHelper.h"
-
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
+#include "../Waypoint/WaypointManager.h"
 
 CEnemy::CEnemy()
 	: GenericEntity(NULL)
-	, defaultPosition(Vector3(0.0f, 0.0f, 0.0f))
+	, defaultPosition(Vector3(0.0f,0.0f,0.0f))
 	, defaultTarget(Vector3(0.0f, 0.0f, 0.0f))
 	, defaultUp(Vector3(0.0f, 0.0f, 0.0f))
 	, target(Vector3(0.0f, 0.0f, 0.0f))
@@ -16,8 +14,9 @@ CEnemy::CEnemy()
 	, maxBoundary(Vector3(0.0f, 0.0f, 0.0f))
 	, minBoundary(Vector3(0.0f, 0.0f, 0.0f))
 	, m_pTerrain(NULL)
-	, m_iSeed(0)
+	, m_iWayPointIndex(-1)
 {
+	listOfWaypoints.clear();
 }
 
 
@@ -32,12 +31,24 @@ void CEnemy::Init(void)
 	defaultTarget.Set(0, 0, 0);
 	defaultUp.Set(0, 1, 0);
 
+	// Set up the waypoints
+	listOfWaypoints.push_back(0);
+	listOfWaypoints.push_back(1);
+	listOfWaypoints.push_back(2);
+
+	m_iWayPointIndex = 0;
+
 	// Set the current values
 	position.Set(10.0f, 0.0f, 0.0f);
 	if (m_pTerrain)
 		target = GenerateTarget();
+	//target.Set(10.0f, 0.0f, 450.0f);
+	CWaypoint* nextWaypoint = GetNextWaypoint();
+	if (nextWaypoint)
+		target = nextWaypoint->GetPosition();
 	else
-		target.Set(10.0f, 0.0f, 450.0f);
+		target = Vector3(0, 0, 0);
+	cout << "Next target: " << target << endl;
 	up.Set(0.0f, 1.0f, 0.0f);
 
 	// Set Boundary
@@ -48,7 +59,7 @@ void CEnemy::Init(void)
 	m_dSpeed = 10.0;
 
 	// Initialise the LOD meshes
-	InitLOD("cube", "sphere", "cubeSG");
+	InitLOD("robot", "robot2", "robot3");
 
 	// Initialise the Collider
 	this->SetCollider(true);
@@ -56,12 +67,13 @@ void CEnemy::Init(void)
 
 	// Add to EntityManager
 	EntityManager::GetInstance()->AddEntity(this, true);
+
 }
 
 void CEnemy::Init(float x, float y)
 {
 	// Set the default values
-	defaultPosition.Set(0, 0, 10);
+	defaultPosition.Set(10, 0, 10);
 	defaultTarget.Set(0, 0, 0);
 	defaultUp.Set(0, 1, 0);
 
@@ -155,41 +167,66 @@ GroundEntity* CEnemy::GetTerrain(void)
 	return m_pTerrain;
 }
 
+// Get next Waypoint for this CEnemy
+CWaypoint* CEnemy::GetNextWaypoint(void)
+{
+	if ((int)listOfWaypoints.size() > 0)
+	{
+		m_iWayPointIndex++;
+		if (m_iWayPointIndex >= (int)listOfWaypoints.size())
+			m_iWayPointIndex = 0;
+		return CWaypointManager::GetInstance()->GetWaypoint(listOfWaypoints[m_iWayPointIndex]);
+	}
+	else
+		return NULL;
+}
+
 // Update
 void CEnemy::Update(double dt)
 {
 	Vector3 viewVector = (target - position).Normalized();
 	position += viewVector * (float)m_dSpeed * (float)dt;
-//	cout << position << " - " << target << "..." << viewVector << endl;
+	//cout << position << "..." << viewVector << endl;
 
 	// Constrain the position
 	Constrain();
 
-	//// Update the target
+	// Update the target
+	/*
 	if (position.z > 400.0f)
-		target.z = position.z * -1;
+	target.z = position.z * -1;
 	else if (position.z < -400.0f)
-		target.z = position.z * -1;
+	target.z = position.z * -1;
+	*/
+
+	if ((target - position).LengthSquared() < 25.0f)
+	{
+		CWaypoint* nextWaypoint = GetNextWaypoint();
+		if (nextWaypoint)
+			target = nextWaypoint->GetPosition();
+		else
+			target = Vector3(0, 0, 0);
+		cout << "Next target: " << target << endl;
+	}
 }
 
 // Constrain the position within the borders
 void CEnemy::Constrain(void)
 {
 	// Constrain player within the boundary
-	if (position.x > maxBoundary.x - 1.0f)
+	/*if (position.x > maxBoundary.x - 1.0f)
 		position.x = maxBoundary.x - 1.0f;
 	if (position.z > maxBoundary.z - 1.0f)
 		position.z = maxBoundary.z - 1.0f;
 	if (position.x < minBoundary.x + 1.0f)
 		position.x = minBoundary.x + 1.0f;
 	if (position.z < minBoundary.z + 1.0f)
-		position.z = minBoundary.z + 1.0f;
+		position.z = minBoundary.z + 1.0f;*/
 
 	if (abs(((target.x - position.x) * (target.x - position.x) - (target.z - position.z)*(target.z - position.z))) < m_dSpeed)
 	{
 		target = GenerateTarget();
 	}
-
 	// if the y position is not equal to terrain height at that position, 
 	// then update y position to the terrain height
 	if (position.y != m_pTerrain->GetTerrainHeight(position))
@@ -213,17 +250,17 @@ void CEnemy::Render(void)
 	}
 	modelStack.PopMatrix();
 }
-
-// Generate New Target
-Vector3 CEnemy::GenerateTarget(void)
-{
-	return Vector3(	rand() % (int)((maxBoundary.x - minBoundary.x)*0.5),	
-					0.0f, 
-					rand() % (int)((maxBoundary.x - minBoundary.x)*0.5));
-}
-
 // Set random seed
 void CEnemy::SetRandomSeed(const int m_iSeed)
 {
 	this->m_iSeed = m_iSeed;
+}
+
+
+// Generate New Target
+Vector3 CEnemy::GenerateTarget(void)
+{
+	return Vector3(rand() % (int)((maxBoundary.x - minBoundary.x)*0.5),
+		0.0f,
+		rand() % (int)((maxBoundary.x - minBoundary.x)*0.5));
 }

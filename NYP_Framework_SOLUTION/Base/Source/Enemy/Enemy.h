@@ -1,6 +1,10 @@
 #pragma once
 #include "../GenericEntity.h"
 #include "../GroundEntity.h"
+#include "../Waypoint/Waypoint.h"
+
+#include <vector>
+using namespace std;
 
 class Mesh;
 
@@ -13,20 +17,23 @@ protected:
 	Vector3 maxBoundary, minBoundary;
 	GroundEntity* m_pTerrain;
 
+	// Vector containing IDs of Waypoints
+	vector<int> listOfWaypoints;
+	// Current ID of Waypoint
+	int m_iWayPointIndex;
+
 	double m_dSpeed;
 	double m_dAcceleration;
 
 	int m_iSeed;
-
 public:
 	CEnemy(void);
 	virtual ~CEnemy();
 
 	void Init(void);
-	void Init(float x, float y);
 	// Reset this player instance to default
 	void Reset(void);
-
+	void Init(float x, float y);
 	// Set position
 	void SetPos(const Vector3& pos);
 	// Set target
@@ -46,6 +53,8 @@ public:
 	Vector3 GetUp(void) const;
 	// Get the terrain for the player info
 	GroundEntity* GetTerrain(void);
+	// Get next Waypoint for this CEnemy
+	CWaypoint* GetNextWaypoint(void);
 
 	// Update
 	void Update(double dt = 0.0333f);
@@ -56,6 +65,5 @@ public:
 	void Render(void);
 	// Set random seed
 	void SetRandomSeed(const int m_iSeed);
-	// Generate New Target
 	Vector3 GenerateTarget(void);
 };

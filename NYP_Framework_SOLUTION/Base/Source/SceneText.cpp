@@ -27,6 +27,7 @@
 #include "Spatial\SpatialPartition.h"
 #include "SceneGraph\SceneGraph.h"
 
+#include "Waypoint\WaypointManager.h"
 #include "Enemy\Enemy.h" 
 #include "../QuadTree.h"
 #include <iostream>
@@ -190,6 +191,7 @@ void SceneText::Init()
 	m_mouse = new Mouse();
 	m_mouse->Create(playerInfo);
 
+	
 	/*for (int i = 0; i < 10; i++)
 	{
 		float x = 1.0f + (i * rand() % 1000 - 500.0f);
@@ -206,10 +208,16 @@ void SceneText::Init()
 	DebugTool::GetInstance()->BindKey('0', []() { QuadTree::GetInstance()->ToggleRender(); });
 
 
+	int aWayPoint = CWaypointManager::GetInstance()->AddWaypoint(Vector3(10.0f, 0.0f, 50.0f));
+	int anotherWaypoint = CWaypointManager::GetInstance()->AddWaypoint(aWayPoint, Vector3(10.0f, 0.0f, -50.0f));
+	CWaypointManager::GetInstance()->AddWaypoint(anotherWaypoint, Vector3(-10.0f, 0.0f, 0.0f));
+	CWaypointManager::GetInstance()->PrintSelf();
 }
 
 void SceneText::Update(double dt)
 {
+	
+
 	m_inputtimer += dt;
 
 	m_kb->Read(dt);
@@ -365,7 +373,11 @@ void SceneText::ResetScene()
 		_Enemy->SetPosition(Vector3(randomx, 0, randomy));
 	}*/
 
-	
+	_Enemy = new CEnemy();
+	_Enemy->Init();
+	_Enemy->SetScale(Vector3(5, 5, 5));
+	_Enemy->SetPosition(Vector3(20, -2, 20));
+
 	QuadTree::GetInstance()->PrintTree();
 
 	// Create entities into the scene
@@ -471,7 +483,7 @@ void SceneText::ResetScene()
 		treeTop->InitLOD("tree", "tree", "tree");
 	}
 
-	for (int i = 20; i < 50; i++)
+	/*for (int i = 20; i < 50; i++)
 	{
 		float randomx = 1.0f + (i* rand() % 1000 - 500.0f);
 		float randomy = 1.0f + (i* rand() % 1000 - 500.0f);
@@ -480,8 +492,8 @@ void SceneText::ResetScene()
 		enemy1->SetCollider(true);
 		enemy1->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
 		enemy1->InitLOD("robot", "robot2", "robot3");
-
-	}
+		
+	}*/
 
 	//GenericEntity* treeTop = Create::Entity("tree2", Vector3(20.0f, -8.0f, 0.0f)  ,Vector3(5, 5, 5));
 	//CSceneNode* treeNode2 = treeNode1->AddChild(treeTop);
