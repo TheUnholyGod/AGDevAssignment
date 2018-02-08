@@ -1,5 +1,6 @@
 #include "LuaInterface.h"
 #include <iostream>
+#include "MeshBuilder.h"
 using namespace std;
 
 // Allocating and initializing CLuaInterface's static data member.  
@@ -36,17 +37,23 @@ bool CLuaInterface::Init()
 		result = true;
 	}
     FunctionLoader<void(std::string, bool)>().LoadFunction("Image//DM2240.lua", "SaveToLuaFile");
-    FunctionLoader<int(int, int)>().LoadFunction("Image//DM2240.lua", "Add");
-    dynamic_cast<FunctionWrapper<void(std::string, bool)>*>(m_functions[0])->Invoke("Bob",true);
+    //FunctionLoader<int(int, int)>().LoadFunction("Image//DM2240.lua", "Add");
+    FunctionLoader<void>().LoadFunction("Scripts//LuaGenerateObjs.lua", "GenerateAllOBJ");
 
-    GenerateFunctionForLua<int(int, int)>().Generate(new FunctionWrapper<int(int, int)>(
+    //dynamic_cast<FunctionWrapper<void(std::string, bool)>*>(m_functions[0])->Invoke("Bob",true);
+    /*GenerateFunctionForLua<int(int, int)>().Generate(new FunctionWrapper<int(int, int)>(
         [](int a, int b) -> int
     {
         return a + b;
     }
-    ),0);
+    ),"add",0);
 
-	return result;
+    GenerateFunctionForLua<int(std::string, std::string)>().Generate(new FunctionWrapper<int(std::string, std::string)>(&MeshBuilder::GenerateOBJ), "GenerateObj", 0);*/
+
+    GenerateFunctionForLua<int>().Generate(new FunctionWrapper<int>([]()->int {std::cout << "YO" << std::endl; return 0; }), "test", 0);
+   // dynamic_cast<FunctionWrapper<void>*>(m_functions[1])->Invoke();
+
+    return result;
 }
 
 // Run the Lua Interface Class
@@ -79,6 +86,11 @@ void CLuaInterface::Run()
 	const char* cstr = lua_tolstring(theLuaState, -1, &len);
 	keyFORWARD = cstr[0];
 	//std::string str(cstr, len);
+    //Test
+    if (luaL_dofile(theLuaState, "Scripts//LuaGenerateObjs.lua"))
+    {
+        std::cout << "fml why tho" << std::endl;
+    }
 }
 
 // Get an integer value through the Lua Interface Class
@@ -126,5 +138,3 @@ void CLuaInterface::Drop()
 		lua_close(theLuaState);
 	}
 }
-
-

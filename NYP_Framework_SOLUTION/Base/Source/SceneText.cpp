@@ -31,6 +31,7 @@
 #include "../QuadTree.h"
 #include <iostream>
 #include "DebugTool.h"
+#include "../LuaWrapper.h"
 using namespace std;
 
 SceneText* SceneText::sInstance = new SceneText(SceneManager::GetInstance());
@@ -121,6 +122,8 @@ void SceneText::Init()
 	currProg->UpdateInt("textEnabled", 0);
 
 	// Load all the meshes
+
+
 	MeshBuilder::GetInstance()->GenerateAxes("reference");
 	MeshBuilder::GetInstance()->GenerateCrossHair("crosshair");
 	MeshBuilder::GetInstance()->GenerateQuad("quad", Color(1, 1, 1), 1.f);
@@ -158,102 +161,19 @@ void SceneText::Init()
 	MeshBuilder::GetInstance()->GenerateRay("laser", 10.0f);
 
 	MeshBuilder::GetInstance()->GenerateQuad("GRIDMESH", Color(1, 1, 1), 10.f);
+    LuaState* ls = new LuaState();
+    ls->Register("GenerateObj", std::function<int(string, string, string)>(&MeshBuilder::GenerateOBJ));
+    std::cout << "LMAOAOAOOAOAOAOOOOAOAOAOAOAOAOAOAOA\n";
+    ls->RunScript("Image//DM2240.lua");
+    ls->RunScript("Scripts//LuaGenerateObjs.lua");
+
+
 
 	CSpatialPartition::GetInstance()->Init(100, 100, 10, 10);
 	CSpatialPartition::GetInstance()->SetMesh("GRIDMESH");
 	CSpatialPartition::GetInstance()->SetCamera(&camera);
 	CSpatialPartition::GetInstance()->SetLevelOfDetails(20000.0f, 25000.0f);
 	EntityManager::GetInstance()->SetSpatialPartition(CSpatialPartition::GetInstance());
-
-	//Log------------------------------//
-	MeshBuilder::GetInstance()->GenerateOBJ("log", "OBJ//log.obj");
-	MeshBuilder::GetInstance()->GetMesh("log")->textureID = LoadTGA("Image//log.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("log2", "OBJ//log.obj");
-	MeshBuilder::GetInstance()->GetMesh("log2")->textureID = LoadTGA("Image//log2.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("log3", "OBJ//log.obj");
-	MeshBuilder::GetInstance()->GetMesh("log")->textureID = LoadTGA("Image//log3.tga");
-
-	//House---------------------------//
-	MeshBuilder::GetInstance()->GenerateOBJ("left", "OBJ//leftside.obj");
-	MeshBuilder::GetInstance()->GetMesh("left")->textureID = LoadTGA("Image//farmhouse.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("right", "OBJ//rightside.obj");
-	MeshBuilder::GetInstance()->GetMesh("right")->textureID = LoadTGA("Image//farmhouse.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("floor", "OBJ//plank.obj");
-	MeshBuilder::GetInstance()->GetMesh("floor")->textureID = LoadTGA("Image//farmhouse.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("roof", "OBJ//rooftop.obj");
-	MeshBuilder::GetInstance()->GetMesh("roof")->textureID = LoadTGA("Image//farmhouse.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("entrance", "OBJ//roofentrance.obj");
-	MeshBuilder::GetInstance()->GetMesh("entrance")->textureID = LoadTGA("Image//farmhouse.tga");
-
-
-	//Bus------------------------------//
-	MeshBuilder::GetInstance()->GenerateOBJ("bus", "OBJ//bus.obj");
-	MeshBuilder::GetInstance()->GetMesh("bus")->textureID = LoadTGA("Image//busuv.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("bus2", "OBJ//bus.obj");
-	MeshBuilder::GetInstance()->GetMesh("bus2")->textureID = LoadTGA("Image//busuv2.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("bus3", "OBJ//bus.obj");
-	MeshBuilder::GetInstance()->GetMesh("bus3")->textureID = LoadTGA("Image//busuv3.tga");
-
-	//Clocktower-------------------//
-	MeshBuilder::GetInstance()->GenerateOBJ("clocktower", "OBJ//clocktower.obj");
-	MeshBuilder::GetInstance()->GetMesh("clocktower")->textureID = LoadTGA("Image//bigben.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("clocktower2", "OBJ//clocktower.obj");
-	MeshBuilder::GetInstance()->GetMesh("clocktower2")->textureID = LoadTGA("Image//bigben2.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("clocktower3", "OBJ//clocktower.obj");
-	MeshBuilder::GetInstance()->GetMesh("clocktower3")->textureID = LoadTGA("Image//bigben3.tga");
-
-	//Tree-------------------------------
-	MeshBuilder::GetInstance()->GenerateOBJ("tree", "OBJ//tree1.obj");
-	MeshBuilder::GetInstance()->GetMesh("tree")->textureID = LoadTGA("Image//tree1.tga");
-	
-	//LOD (Tree Leaves)
-	MeshBuilder::GetInstance()->GenerateOBJ("tree2", "OBJ//tree2.obj");
-	MeshBuilder::GetInstance()->GetMesh("tree2")->textureID = LoadTGA("Image//tree2.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("tree3", "OBJ//tree3.obj");
-	MeshBuilder::GetInstance()->GetMesh("tree3")->textureID = LoadTGA("Image//tree2.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("tree4", "OBJ//tree4.obj");
-	MeshBuilder::GetInstance()->GetMesh("tree4")->textureID = LoadTGA("Image//tree2.tga");
-
-
-	//Ai---------------------------------
-	MeshBuilder::GetInstance()->GenerateOBJ("robot", "OBJ//robotfull.obj");
-	MeshBuilder::GetInstance()->GetMesh("robot")->textureID = LoadTGA("Image//enemy.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("robot2", "OBJ//robotfull.obj");
-	MeshBuilder::GetInstance()->GetMesh("robot2")->textureID = LoadTGA("Image//enemy2.tga");
-
-	MeshBuilder::GetInstance()->GenerateOBJ("robot3", "OBJ//robotfull.obj");
-	MeshBuilder::GetInstance()->GetMesh("robot3")->textureID = LoadTGA("Image//enemy3.tga");
-	//MeshBuilder::GetInstance()->GenerateOBJ("robothands", "OBJ//robothands.obj");
-	//MeshBuilder::GetInstance()->GetMesh("robothands")->textureID = LoadTGA("Image//enemy.tga");
-
-	//Tank---------------------------------
-	MeshBuilder::GetInstance()->GenerateOBJ("tanktop", "OBJ//tanktop.obj");
-	MeshBuilder::GetInstance()->GetMesh("tanktop")->textureID = LoadTGA("Image//tank.tga");
-	//LOD 
-	MeshBuilder::GetInstance()->GenerateOBJ("tankbody", "OBJ//tankbody3.obj");
-	MeshBuilder::GetInstance()->GetMesh("tankbody")->textureID = LoadTGA("Image//tank.tga");
-
-	//85%
-	MeshBuilder::GetInstance()->GenerateOBJ("tankbody2", "OBJ//tankbody2.obj");
-	MeshBuilder::GetInstance()->GetMesh("tankbody2")->textureID = LoadTGA("Image//tank.tga");
-	
-	//75%
-	MeshBuilder::GetInstance()->GenerateOBJ("tankbody3", "OBJ//tankbody.obj");
-	MeshBuilder::GetInstance()->GetMesh("tankbody3")->textureID = LoadTGA("Image//tank.tga");
-	// Create the playerinfo instance, which manages all information about the player
 	playerInfo = CPlayerInfo::GetInstance();
 	playerInfo->Init();
 
@@ -284,6 +204,8 @@ void SceneText::Init()
 	m_inputtimer = 0;
 	this->ResetScene();
 	DebugTool::GetInstance()->BindKey('0', []() { QuadTree::GetInstance()->ToggleRender(); });
+
+
 }
 
 void SceneText::Update(double dt)
@@ -599,6 +521,6 @@ void SceneText::ResetScene()
 		textObj[i] = Create::Text2DObject("text", Vector3(-halfWindowWidth, -halfWindowHeight + fontSize*i + halfFontSize, 0.0f), "", Vector3(fontSize, fontSize, fontSize), Color(0.0f, 1.0f, 0.0f));
 	}
 	textObj[0]->SetText("HEllo world");
-	QuadTree::GetInstance()->PrintTree();
+	//QuadTree::GetInstance()->PrintTree();
 
 }

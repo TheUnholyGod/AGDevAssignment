@@ -8,6 +8,7 @@
 #include <tuple>
 #include <algorithm>
 #include <typeinfo>
+#include <map>
 
 #include "../FunctionWrapper.h"
 
@@ -19,7 +20,7 @@ protected:
 
     std::vector<IFunction*> m_functions;
 
-    std::vector<IFunction*> m_functionsforlua;
+    std::map<std::string, lua_CFunction> m_functionsforlua;
 
 public:
     // Pointer to the Lua State
@@ -67,40 +68,65 @@ public:
 
     void RegisterFunction()
     {
+        lua_CFunction _function;
+
     }
-    
+
+    static int Test(lua_State* _state)
+    {
+        return 1;
+    }
+
     template<typename ReturnType>
     struct GenerateFunctionForLua
     {
-        lua_CFunction Generate(FunctionWrapper<ReturnType>* _function)
+        lua_CFunction Generate(FunctionWrapper<ReturnType>* _function, std::string _id, int _NoOfReturns)
         {
-            return [](lua_State* _state) -> int
+//            func = Test1;
+            std::function<int(lua_State*)>func = [&_function, &_NoOfReturns](lua_State* _state) -> int
             {
+                std::cout << "functionInvoked" << std::endl;
                 _function->Invoke();
+                return _NoOfReturns;
             };
+            //s_instance->m_functionsforlua[_id] = (func.target<decltype(func)>());
+            lua_register(s_instance->theLuaState, _id.c_str(), s_instance->m_functionsforlua[_id]);
+            return s_instance->m_functionsforlua[_id];
         }
     };
 
     template<typename ReturnType, typename... Variables>
     struct GenerateFunctionForLua<ReturnType(Variables...)>
     {
-        lua_CFunction Generate(FunctionWrapper<ReturnType(Variables...)>* _function,int _NoOfReturns)
+        lua_CFunction Generate(FunctionWrapper<ReturnType(Variables...)>* _function, std::string _id, int _NoOfReturns)
         {
-           
-            std::function<int(lua_State*)>func(            
+
+            std::function<int(lua_State*)>func(
                 [&_function, &_NoOfReturns](lua_State* _state) -> int
-            {
+            {   
                 std::tuple<Variables...> functionvars;
 
-                for (int index = 1; index<std::tuple_size<std::tuple<Variables...>>::value; ++index)
+                for (int index = 1; index < std::tuple_size<std::tuple<Variables...>>::value; ++index)
                 {
                     CLuaInterface::GetInstance()->visit_at(functionvars, index);
                 }
                 _function->Invoke(functionvars);
-                return (_NoOfReturns);
-            };
-            );
+                std::cout << "functionInvoked" << std::endl;
+                std::cout << "functionInvoked" << std::endl;
+                std::cout << "functionInvoked" << std::endl;
+                std::cout << "functionInvoked" << std::endl;
+                std::cout << "functionInvoked" << std::endl;
+                std::cout << "functionInvoked" << std::endl;
+                std::cout << "functionInvoked" << std::endl;
 
+                return (_NoOfReturns);
+            }
+            );
+            //std::cout << typeid(static_cast<lua_CFunction>(func.target<int(lua_State*)>())).name() << std::endl;
+            //std::cout << typeid(lua_CFunction).name() << std::endl;
+            //s_instance->m_functionsforlua[_id] = static_cast<lua_CFunction>(func.target<int(lua_State*)>());
+            s_instance->m_functionsforlua[_id] = (func).target<int(lua_State*)>();
+            lua_register(s_instance->theLuaState, _id.c_str(), s_instance->m_functionsforlua[_id]);
             return func.target<int(lua_State*)>();
         }
     };
@@ -144,18 +170,46 @@ public:
         }
     };
 
+    template<>
+    struct FunctionLoader<void>
+    {
+        bool LoadFunction(const char* fileName, const char* funcName)
+        {
+            if (!luaL_dofile(s_instance->theLuaState, fileName))
+            {
+                return 0;
+            }
+            s_instance->m_functions.push_back(new FunctionWrapper<void>(
+                [this, funcName,fileName]()
+            {
+                if (!luaL_dofile(s_instance->theLuaState, fileName))
+                {
+                    return 0;
+                }
+                lua_getglobal(s_instance->theLuaState, funcName);
+
+                lua_pcall(s_instance->theLuaState, 0, 1, 0);
+            }
+            ));
+        }
+    };
+
     template<typename ReturnType, typename... Variables>
     struct FunctionLoader<ReturnType(Variables...)>
     {
         bool LoadFunction(const char* fileName, const char* funcName)
         {
-            if (luaL_loadfile(s_instance->theLuaState, fileName))
+            if (!luaL_dofile(s_instance->theLuaState, fileName))
             {
                 return 0;
             }
             s_instance->m_functions.push_back(new FunctionWrapper<std::vector<ReturnType>(Variables...)>(
-                [this, funcName](Variables... _args) -> std::vector<ReturnType>
+                [this, funcName,fileName](Variables... _args) -> std::vector<ReturnType>
             {
+                if (!luaL_dofile(s_instance->theLuaState, fileName))
+                {
+                    return 0;
+                }
                 lua_getglobal(s_instance->theLuaState, funcName);
                 std::tuple<Variables...> params = std::forward_as_tuple(_args...);
                 s_instance->PushToTop(_args...);
@@ -186,8 +240,12 @@ public:
                 return 0;
             }
             s_instance->m_functions.push_back(new FunctionWrapper<void(Variables...)>(
-                [this, funcName](Variables... _args)
+                [this, funcName,fileName](Variables... _args)
             {
+                if (luaL_dofile(s_instance->theLuaState, fileName))
+                {
+                    return 0;
+                }
                 lua_getglobal(s_instance->theLuaState, funcName);
                 std::tuple<Variables...> params = std::forward_as_tuple(_args...);
                 s_instance->PushToTop(_args...);
@@ -358,4 +416,3 @@ public:
 	// Key to move forward
 	char keyFORWARD;
 };
-

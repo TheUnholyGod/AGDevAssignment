@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CollisionCheckFunctions.h" />
+    <ClInclude Include="LuaFunctionWrapper.h" />
+    <ClInclude Include="LuaWrapper.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\DebugTool.h" />

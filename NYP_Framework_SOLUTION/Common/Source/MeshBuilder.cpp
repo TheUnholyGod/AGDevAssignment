@@ -4,6 +4,7 @@
 #include <vector>
 #include "MyMath.h"
 #include "LoadOBJ.h"
+#include "LoadTGA.h"
 #include <iostream>
 using namespace std;
 /******************************************************************************/
@@ -439,8 +440,9 @@ Mesh* MeshBuilder::GenerateCone(const std::string &meshName, Color color, unsign
 	return mesh;
 }
 
-Mesh* MeshBuilder::GenerateOBJ(const std::string &meshName, const std::string &file_path)
+int MeshBuilder::GenerateOBJ(const std::string &meshName, const std::string &file_path, const std::string &texture)
 {
+    std::cout << "Hello" << std::endl;
 	std::vector<Position> vertices;
 	std::vector<TexCoord> uvs;
 	std::vector<Vector3> normals;
@@ -464,9 +466,12 @@ Mesh* MeshBuilder::GenerateOBJ(const std::string &meshName, const std::string &f
 
 	mesh->indexSize = index_buffer_data.size();
 
-	AddMesh(meshName, mesh);
+	MeshBuilder::GetInstance()->AddMesh(meshName, mesh);
 
-	return mesh;
+    if (texture != "")
+        mesh->textureID = LoadTGA(texture.c_str());
+
+	return 0;
 }
 
 Mesh* MeshBuilder::GenerateText(const std::string &meshName, unsigned numRow, unsigned numCol)

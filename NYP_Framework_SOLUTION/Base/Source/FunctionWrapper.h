@@ -8,12 +8,12 @@
 
 class IFunction
 {
-private:
+protected:
     std::string m_ID;
 public:
     IFunction() {}
     IFunction(std::string _ID) :m_ID(_ID) {}
-	virtual ~IFunction() = 0;
+    virtual ~IFunction() {}
     virtual void Invoke() {};
     std::string GetID() { return m_ID; }
     virtual IFunction* DownCast() { return this; };
@@ -36,7 +36,7 @@ public:
 template<typename ret> 
 class FunctionWrapper : public IFunction,public IFunction2<ret>
 {
-private:
+protected:
 	typedef std::function<ret()> FunctionPointer;
 	FunctionPointer m_function;
 public:
@@ -56,10 +56,11 @@ public:
     }
 };
 
+
 template<typename ret, typename... params>
 class FunctionWrapper <ret(params...)>: public IFunction,public IFunction2<ret>
 {
-private:
+protected:
 	typedef std::function<ret(params...)> FunctionPointer;
 	typedef std::tuple<params...> Parameters;
 	FunctionPointer m_function;
@@ -139,7 +140,7 @@ public:
 template<typename... params>
 class FunctionWrapper <void(params...)> : public IFunction, public IFunction2<void>
 {
-private:
+protected:
     typedef std::function<void(params...)> FunctionPointer;
     typedef std::tuple<params...> Parameters;
     FunctionPointer m_function;

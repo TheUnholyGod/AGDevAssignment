@@ -57,13 +57,13 @@ Application::~Application()
 
 void Application::Init()
 {
-	CLuaInterface::GetInstance()->Init();
+	//CLuaInterface::GetInstance()->Init();
 
-	m_window_width = CLuaInterface::GetInstance()->getIntValue("width");
-	m_window_height = CLuaInterface::GetInstance()->getIntValue("height");
-	CLuaInterface::GetInstance()->Run();
-	CLuaInterface::GetInstance()->saveFloatValue("Player1", 888.10, true);
-	CLuaInterface::GetInstance()->saveIntValue("Player2", 100);
+	//m_window_width = CLuaInterface::GetInstance()->getIntValue("width");
+	//m_window_height = CLuaInterface::GetInstance()->getIntValue("height");
+	//CLuaInterface::GetInstance()->Run();
+	//CLuaInterface::GetInstance()->saveFloatValue("Player1", 888.10, true);
+	//CLuaInterface::GetInstance()->saveIntValue("Player2", 100);
 
 
 	//Set the error callback

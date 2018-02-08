@@ -26,7 +26,9 @@ public:
 	Mesh* GenerateRing(const std::string &meshName, Color color, unsigned numSlice, float outerR = 1.f, float innerR = 0.f);
 	Mesh* GenerateSphere(const std::string &meshName, Color color, unsigned numStack, unsigned numSlice, float radius = 1.f);
 	Mesh* GenerateCone(const std::string &meshName, Color color, unsigned numSlice, float radius, float height);
-	Mesh* GenerateOBJ(const std::string &meshName, const std::string &file_path);
+	static int GenerateOBJ(const std::string &meshName, const std::string &file_path, const std::string &texture = "");
+
+
 	Mesh* GenerateText(const std::string &meshName, unsigned row, unsigned col);
 	Mesh* GenerateSkyPlane(const std::string &meshName, Color color, int slices,float PlanetRadius, float AtmosphereRadius, float hTile, float vTile);
 	Mesh* GenerateRay(const std::string &meshName, const float length = 1.0f);
