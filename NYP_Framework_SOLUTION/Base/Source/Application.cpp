@@ -3,8 +3,9 @@
 #include "KeyboardController.h"
 #include "SceneManager.h"
 #include "GraphicsManager.h"
-
+#include "../LuaWrapper.h"
 #include "Lua/LuaInterface.h"
+#include "MeshBuilder.h"
 //Include GLEW
 #include <GL/glew.h>
 
@@ -54,7 +55,7 @@ Application::Application()
 Application::~Application()
 {
 }
-
+static LuaState* ls = new LuaState();
 void Application::Init()
 {
 	//CLuaInterface::GetInstance()->Init();
@@ -118,6 +119,11 @@ void Application::Init()
 
 	// Init systems
 	GraphicsManager::GetInstance()->Init();
+
+    ls->Register("GenerateObj", std::function<int(string, string, string)>(&MeshBuilder::GenerateOBJ));
+    ls->RunScript("Image//DM2240.lua");
+    ls->RunScript("Scripts//LuaGenerateObjs.lua");
+
 }
 
 void Application::Run()
@@ -131,6 +137,20 @@ void Application::Run()
 		
 		SceneManager::GetInstance()->Update(m_timer.getElapsedTime());
 		SceneManager::GetInstance()->Render();
+
+        if (IsKeyPressed('M'))
+        {
+            glfwSetWindowSize(m_window, 1200, 900);
+            ls->Call<int, std::string, bool>("Image//DM2240.lua", "SaveToLuaFile", "height=900", true);
+            ls->Call<int, std::string, bool>("Image//DM2240.lua", "SaveToLuaFile", "width=1200", true);
+
+        }
+        else if (IsKeyPressed('N'))
+        {
+            glfwSetWindowSize(m_window, 1920, 1080);
+            ls->Call<int,std::string,bool>("Image//DM2240.lua", "SaveToLuaFile", "height = 1080",true );
+            ls->Call<int, std::string, bool>("Image//DM2240.lua", "SaveToLuaFile", "width = 1920",true );
+        }
 
 		//Swap buffers
 		glfwSwapBuffers(m_window);

@@ -32,7 +32,6 @@
 #include "../QuadTree.h"
 #include <iostream>
 #include "DebugTool.h"
-#include "../LuaWrapper.h"
 using namespace std;
 
 SceneText* SceneText::sInstance = new SceneText(SceneManager::GetInstance());
@@ -162,11 +161,7 @@ void SceneText::Init()
 	MeshBuilder::GetInstance()->GenerateRay("laser", 10.0f);
 
 	MeshBuilder::GetInstance()->GenerateQuad("GRIDMESH", Color(1, 1, 1), 10.f);
-    LuaState* ls = new LuaState();
-    ls->Register("GenerateObj", std::function<int(string, string, string)>(&MeshBuilder::GenerateOBJ));
-    std::cout << "LMAOAOAOOAOAOAOOOOAOAOAOAOAOAOAOAOA\n";
-    ls->RunScript("Image//DM2240.lua");
-    ls->RunScript("Scripts//LuaGenerateObjs.lua");
+
 
 
 

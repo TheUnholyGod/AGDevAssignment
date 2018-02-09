@@ -2,9 +2,9 @@ function SaveToLuaFile(outputString, overwrite)
    print("SaveToLuaFile...")
    local f;						-- The file
    if overwrite == 1 then		-- Wipe the contents with new data
-      f = assert(io.open("Image/DM2240_HighScore.lua", "w"))
+      f = assert(io.open("Image//DM2240_HighScore.lua", "w"))
    elseif overwrite == 0 then	-- Append with new data
-      f = assert(io.open("Image/DM2240_HighScore.lua", "a"))
+      f = assert(io.open("Image//DM2240_HighScore.lua", "a"))
    end
    -- Write to the file
    f:write(outputString)

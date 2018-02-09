@@ -60,7 +60,6 @@ public:
     template<typename T>
     void PushToTop(T _arg)
     {
-        PushToTop<T>(_arg);
     }
 
     template<>
@@ -173,19 +172,18 @@ public:
         }
     };
 
-    template <typename... ReturnType,typename... Args>
-    typename _pop<sizeof...(ReturnType),ReturnType...> Call(const std::string& _FileName, const std::string& _FunctionName,const Args&... _Args)
+    template <typename ReturnType,typename... Args>
+    ReturnType Call(const std::string& _FileName, const std::string& _FunctionName,const Args&... _Args)
     {
         lua_getglobal(m_luaState, _FunctionName.c_str());
 
         const int argsCount = sizeof...(Args);
-        const int retCount = sizeof...(ReturnType);
+        const int retCount = 1;
 
         PushToTop(_Args...);
-        lua_call(m_luaState, argsCount, retCount);
+        lua_pcall(m_luaState, argsCount, retCount,0);
 
-        return _pop<sizeof...(ReturnType),ReturnType...>::Apply(*this);
-        lua_pushlightuserdata
+        return _pop<1,ReturnType>::Apply(*this);
     };
 
     /*

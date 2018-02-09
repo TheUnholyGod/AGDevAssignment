@@ -42,6 +42,8 @@
     <ClCompile Include="Source\Spatial\SpatialPartition.cpp" />
     <ClCompile Include="Source\SpriteEntity.cpp" />
     <ClCompile Include="Source\TextEntity.cpp" />
+    <ClCompile Include="Source\Waypoint\Waypoint.cpp" />
+    <ClCompile Include="Source\Waypoint\WaypointManager.cpp" />
     <ClCompile Include="Source\WeaponInfo\Grenadethrow.cpp" />
     <ClCompile Include="Source\WeaponInfo\LaserBlaster.cpp" />
     <ClCompile Include="Source\WeaponInfo\Pistol.cpp" />
@@ -82,6 +84,8 @@
     <ClInclude Include="Source\Spatial\SpatialPartition.h" />
     <ClInclude Include="Source\SpriteEntity.h" />
     <ClInclude Include="Source\TextEntity.h" />
+    <ClInclude Include="Source\Waypoint\Waypoint.h" />
+    <ClInclude Include="Source\Waypoint\WaypointManager.h" />
     <ClInclude Include="Source\WeaponInfo\Grenadethrow.h" />
     <ClInclude Include="Source\WeaponInfo\LaserBlaster.h" />
     <ClInclude Include="Source\WeaponInfo\Pistol.h" />
