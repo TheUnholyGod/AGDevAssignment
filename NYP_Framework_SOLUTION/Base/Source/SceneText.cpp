@@ -357,8 +357,13 @@ void SceneText::Exit()
 
 void SceneText::ResetScene()
 {
+	
+
 	QuadTree::GetInstance()->Init(Vector3(1000, 1000, 1000), Vector3());
 	EntityManager::GetInstance()->EmptyList();
+
+	
+
 	/*for (int i = 0; i < 50; ++i)
 	{
 		CEnemy* _Enemy = new CEnemy();
@@ -435,7 +440,7 @@ void SceneText::ResetScene()
 	}
 	//----Tanks
 
-	GenericEntity* tankBody = Create::Entity("tankbody", Vector3(0.0f, -6.0f, 0.0f), Vector3(1, 1, 1), true);
+	/*GenericEntity* tankBody = Create::Entity("tankbody", Vector3(0.0f, -6.0f, 0.0f), Vector3(1, 1, 1), true);
 	CSceneNode* tankNode1 = CSceneGraph::GetInstance()->AddNode(tankBody);
 	tankBody->SetCollider(true);
 	tankBody->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
@@ -445,12 +450,12 @@ void SceneText::ResetScene()
 	tankTop->SetCollider(true);
 	tankTop->SetAABB(Vector3(10, 10, 10), Vector3(-5, -5, -5));
 	tankNode2->ApplyTranslate(0.0f, 0.0f, 0.0f);
- // //Rotation
+  Rotation
 	CUpdateTransformation* rotation = new CUpdateTransformation();
 	rotation->ApplyUpdate(1.0f, 0.0f, 1.0f, 0.0f);
 	rotation->SetSteps(-120, 60);
 	tankNode2->SetUpdateTransformation(rotation);
-
+*/
 
 	//Resize
 	

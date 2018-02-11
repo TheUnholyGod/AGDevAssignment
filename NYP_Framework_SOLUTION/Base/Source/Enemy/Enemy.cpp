@@ -3,6 +3,7 @@
 #include "GraphicsManager.h"
 #include "RenderHelper.h"
 #include "../Waypoint/WaypointManager.h"
+#include "../PlayerInfo/PlayerInfo.h"
 
 CEnemy::CEnemy()
 	: GenericEntity(NULL)
@@ -208,6 +209,33 @@ void CEnemy::Update(double dt)
 			target = Vector3(0, 0, 0);
 		cout << "Next target: " << target << endl;
 	}
+
+	static bool chasing = false;
+	if (!chasing)
+	{
+		if ((target - position).LengthSquared() < 25.0f)
+		{
+			CWaypoint* nextWaypoint = GetNextWaypoint();
+			if (nextWaypoint)
+				target = nextWaypoint->GetPosition();
+		}
+		cout << "Next target: " << target << endl;
+	}
+
+	else
+		target = CPlayerInfo::GetInstance()->GetPosition();
+
+	if ((CPlayerInfo::GetInstance()->GetPosition() - position).Length() < 50 && !chasing)
+	{
+		chasing = true;
+	}
+	else if ((CPlayerInfo::GetInstance()->GetPosition() - position).Length() > 50 && chasing)
+	{
+		CWaypoint* nextWaypoint = GetNextWaypoint();
+		if (nextWaypoint)
+			target = nextWaypoint->GetPosition();
+		chasing = false;
+	}
 }
 
 // Constrain the position within the borders
@@ -239,6 +267,7 @@ void CEnemy::Render(void)
 	MS& modelStack = GraphicsManager::GetInstance()->GetModelStack();
 	modelStack.PushMatrix();
 	modelStack.Translate(position.x, position.y, position.z);
+	modelStack.Rotate((180 / 3.14159265359) * (atan2(target.x - position.x, target.z - position.z)) - 90, 0, 1, 0);
 	modelStack.Scale(scale.x, scale.y, scale.z);
 	if (GetLODStatus() == true)
 	{
