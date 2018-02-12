@@ -17,7 +17,9 @@
 #include <stdlib.h>
 
 #include "SceneText.h"
-
+#include "../Source/GameStateManagement/IntroState.h"
+#include "../Source/GameStateManagement/Options.h"
+#include "../Source/GameStateManagement/MainMenu.h"
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
@@ -121,6 +123,7 @@ void Application::Init()
 	GraphicsManager::GetInstance()->Init();
 
     ls->Register("GenerateObj", std::function<int(string, string, string)>(&MeshBuilder::GenerateOBJ));
+	//ls->Register("GenerateSprite", std::function<int(string, string, string)>(&SpriteEntity::RenderUI));
     ls->RunScript("Image//DM2240.lua");
     ls->RunScript("Scripts//LuaGenerateObjs.lua");
 
@@ -128,7 +131,13 @@ void Application::Init()
 
 void Application::Run()
 {
-	SceneManager::GetInstance()->SetActiveScene("Start");
+	SceneManager::GetInstance()->AddScene("IntroState", new CIntroState());
+	SceneManager::GetInstance()->AddScene("MenuState", new MenuState());
+	SceneManager::GetInstance()->AddScene("Options", new Options());
+	SceneManager::GetInstance()->AddScene("GameState", new SceneText());
+
+
+	SceneManager::GetInstance()->SetActiveScene("IntroState");
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{

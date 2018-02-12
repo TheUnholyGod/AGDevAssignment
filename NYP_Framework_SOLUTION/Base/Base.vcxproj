@@ -12,12 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionCheckFunctions.cpp" />
-    <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\DebugTool.cpp" />
     <ClCompile Include="Source\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\EntityManager.cpp" />
     <ClCompile Include="Source\FPSCamera.cpp" />
+    <ClCompile Include="Source\GameStateManagement\IntroState.cpp" />
+    <ClCompile Include="Source\GameStateManagement\MainMenu.cpp" />
+    <ClCompile Include="Source\GameStateManagement\Options.cpp" />
     <ClCompile Include="Source\GenericEntity.cpp" />
     <ClCompile Include="Source\Grenade.cpp" />
     <ClCompile Include="Source\GroundEntity.cpp" />
@@ -32,6 +34,7 @@
     <ClCompile Include="Source\PlayerInfo\PlayerInfo.cpp" />
     <ClCompile Include="Source\Projectile\Laser.cpp" />
     <ClCompile Include="Source\Projectile\Projectile.cpp" />
+    <ClCompile Include="Source\QuadTree.cpp" />
     <ClCompile Include="Source\SceneGraph\SceneGraph.cpp" />
     <ClCompile Include="Source\SceneGraph\SceneNode.cpp" />
     <ClCompile Include="Source\SceneGraph\Transform.cpp" />
@@ -40,6 +43,7 @@
     <ClCompile Include="Source\SkyBox\SkyBoxEntity.cpp" />
     <ClCompile Include="Source\Spatial\Grid.cpp" />
     <ClCompile Include="Source\Spatial\SpatialPartition.cpp" />
+    <ClCompile Include="Source\Splash.cpp" />
     <ClCompile Include="Source\SpriteEntity.cpp" />
     <ClCompile Include="Source\TextEntity.cpp" />
     <ClCompile Include="Source\Waypoint\Waypoint.cpp" />
@@ -53,13 +57,15 @@
     <ClInclude Include="CollisionCheckFunctions.h" />
     <ClInclude Include="LuaFunctionWrapper.h" />
     <ClInclude Include="LuaWrapper.h" />
-    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\DebugTool.h" />
     <ClInclude Include="Source\Enemy\Enemy.h" />
     <ClInclude Include="Source\EntityManager.h" />
     <ClInclude Include="Source\FPSCamera.h" />
     <ClInclude Include="Source\FunctionWrapper.h" />
+    <ClInclude Include="Source\GameStateManagement\IntroState.h" />
+    <ClInclude Include="Source\GameStateManagement\MainMenu.h" />
+    <ClInclude Include="Source\GameStateManagement\Options.h" />
     <ClInclude Include="Source\GenericEntity.h" />
     <ClInclude Include="Source\Grenade.h" />
     <ClInclude Include="Source\GroundEntity.h" />
@@ -74,6 +80,7 @@
     <ClInclude Include="Source\PlayerInfo\PlayerInfo.h" />
     <ClInclude Include="Source\Projectile\Laser.h" />
     <ClInclude Include="Source\Projectile\Projectile.h" />
+    <ClInclude Include="Source\QuadTree.h" />
     <ClInclude Include="Source\SceneGraph\SceneGraph.h" />
     <ClInclude Include="Source\SceneGraph\SceneNode.h" />
     <ClInclude Include="Source\SceneGraph\Transform.h" />
@@ -82,6 +89,7 @@
     <ClInclude Include="Source\SkyBox\SkyBoxEntity.h" />
     <ClInclude Include="Source\Spatial\Grid.h" />
     <ClInclude Include="Source\Spatial\SpatialPartition.h" />
+    <ClInclude Include="Source\Splash.h" />
     <ClInclude Include="Source\SpriteEntity.h" />
     <ClInclude Include="Source\TextEntity.h" />
     <ClInclude Include="Source\Waypoint\Waypoint.h" />

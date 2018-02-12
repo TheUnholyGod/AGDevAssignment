@@ -29,7 +29,7 @@
 
 #include "Waypoint\WaypointManager.h"
 #include "Enemy\Enemy.h" 
-#include "../QuadTree.h"
+#include "QuadTree.h"
 #include <iostream>
 #include "DebugTool.h"
 using namespace std;
@@ -207,11 +207,24 @@ void SceneText::Init()
 	int anotherWaypoint = CWaypointManager::GetInstance()->AddWaypoint(aWayPoint, Vector3(10.0f, 0.0f, -50.0f));
 	CWaypointManager::GetInstance()->AddWaypoint(anotherWaypoint, Vector3(-10.0f, 0.0f, 0.0f));
 	CWaypointManager::GetInstance()->PrintSelf();
+
+	//MeshBuilder::GetInstance()->GenerateQuad("INTROSTATE_BKGROUND", Color(1, 1, 1), 1.f);
+	//MeshBuilder::GetInstance()->GetMesh("INTROSTATE_BKGROUND")->textureID = LoadTGA("Image//IntroState.tga");
+	//float halfWindowWidth = Application::GetInstance().GetWindowWidth() / 2.0f;
+	//float halfWindowHeight = Application::GetInstance().GetWindowHeight() / 2.0f;
+	//IntroStateBackground = Create::Sprite2DObject("INTROSTATE_BKGROUND",
+	//	Vector3(0, 0, 0.0f),
+	//	Vector3(800.0f, 600.0f, 0.0f));
 }
 
 void SceneText::Update(double dt)
 {
 	
+	/*if (KeyboardController::GetInstance()->IsKeyReleased(VK_SPACE))
+	{
+		cout << "Loading MenuState" << endl;
+		SceneManager::GetInstance()->SetActiveScene("IntroState");
+	}*/
 
 	m_inputtimer += dt;
 
@@ -351,8 +364,8 @@ void SceneText::Exit()
 	}
 
 	// Delete the lights
-	delete lights[0];
-	delete lights[1];
+//	delete lights[0];
+	//delete lights[1];
 }
 
 void SceneText::ResetScene()
@@ -376,7 +389,7 @@ void SceneText::ResetScene()
 	_Enemy = new CEnemy();
 	_Enemy->Init();
 	_Enemy->SetScale(Vector3(5, 5, 5));
-	_Enemy->SetPosition(Vector3(20, -2, 20));
+	_Enemy->SetPosition(Vector3(20, -10, 20));
 
 	QuadTree::GetInstance()->PrintTree();
 

@@ -10,7 +10,7 @@
 #include "../WeaponInfo/LaserBlaster.h"
 #include "../WeaponInfo/Grenadethrow.h"
 #include "../Spatial/SpatialPartition.h"
-#include "../../QuadTree.h"
+#include "../QuadTree.h"
 #include "../../CollisionCheckFunctions.h"
 // Allocating and initializing CPlayerInfo's static data member.  
 // The pointer is allocated but not the object's constructor.

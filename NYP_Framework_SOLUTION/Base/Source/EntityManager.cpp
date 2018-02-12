@@ -3,7 +3,7 @@
 #include "Collider/Collider.h"
 #include "Projectile/Laser.h"
 #include "SceneGraph\SceneGraph.h"
-#include "../QuadTree.h"
+#include "QuadTree.h"
 #include "GenericEntity.h"
 
 #include <iostream>
@@ -68,10 +68,10 @@ void EntityManager::Render()
 
 		}
 	}
-	QuadTree::GetInstance()->Render();
+//	QuadTree::GetInstance()->Render();
 
 	// Render the Scene Graph
-	CSceneGraph::GetInstance()->Render();
+	//CSceneGraph::GetInstance()->Render();
 
 	// Render the Spatial Partition
 	//if (theSpatialPartition)

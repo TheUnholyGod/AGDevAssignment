@@ -10,6 +10,7 @@
 #include "MatrixStack.h"
 #include "GenericEntity.h"
 #include "Enemy\Enemy.h"
+
 class ShaderProgram;
 class SceneManager;
 class TextEntity;
@@ -45,6 +46,7 @@ private:
 	CEnemy *_Enemy;
 	float m_inputtimer;
 	static SceneText* sInstance; // The pointer to the object that gets registered
+	
 };
 
 #endif
